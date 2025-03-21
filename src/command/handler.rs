@@ -1,7 +1,8 @@
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
-use crate::response::{Response, ResponseType};
+use crate::response::{Response, ResponseCollection, ResponseType};
 
+pub mod help;
 pub mod user;
 
 pub trait CommandHandler {
@@ -9,13 +10,13 @@ pub trait CommandHandler {
         true
     }
 
-    fn error(&self) -> Response {
-        Response::new(
+    fn error(&self) -> ResponseCollection {
+        vec![Response::new(
             ResponseCode::MissingArgument,
             ResponseMessage::MissingArgument,
             ResponseType::Complete,
-        )
+        )]
     }
 
-    fn handle(&self) -> Response;
+    fn handle(&self) -> ResponseCollection;
 }

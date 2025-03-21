@@ -1,4 +1,5 @@
 pub enum ResponseMessage {
+    Help,
     Greeting,
     WrongCommand,
     CommandOkay,
@@ -18,6 +19,7 @@ impl ResponseMessage {
             }
             ResponseMessage::MissingArgument => "Missing required argument",
             ResponseMessage::Custom(message) => message,
+            ResponseMessage::Help => "Help Okay",
         }
     }
 }

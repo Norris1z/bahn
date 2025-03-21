@@ -3,6 +3,7 @@ use std::borrow::Cow;
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
 #[derive(Debug)]
 pub enum CommandType<'a> {
+    Help,
     User(CommandArgument<'a>),
     // Pass(CommandArgument<'a>),
     // Acct(CommandArgument<'a>),
@@ -16,6 +17,7 @@ impl<'a> CommandType<'a> {
         let command = command_iterator.next()?;
 
         match command {
+            _ if command.eq_ignore_ascii_case("help") => Some(CommandType::Help),
             _ if command.eq_ignore_ascii_case("user") => Some(CommandType::User(
                 command_iterator.next().map(Cow::Borrowed),
             )),

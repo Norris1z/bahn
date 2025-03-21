@@ -4,6 +4,8 @@ pub mod messages;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 
+pub type ResponseCollection = Vec<Response>;
+
 pub enum ResponseType {
     Partial,
     Complete,

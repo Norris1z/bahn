@@ -2,7 +2,7 @@ use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
-use crate::response::{Response, ResponseType};
+use crate::response::{ResponseCollection, Response, ResponseType};
 use crate::user::User;
 use std::cell::RefCell;
 
@@ -22,22 +22,22 @@ impl<'a> CommandHandler for UserCommandHandler<'a> {
         self.name.is_some()
     }
 
-    fn handle(&self) -> Response {
+    fn handle(&self) -> ResponseCollection {
         if self.user.borrow().is_authenticated {
-            return Response::new(
+            return vec![Response::new(
                 ResponseCode::BadSequence,
                 ResponseMessage::Custom("Already authenticated. QUIT first"),
                 ResponseType::Complete,
-            );
+            )];
         }
 
         self.user.borrow_mut().is_authenticated = true;
         self.user.borrow_mut().username = Some(self.name.as_deref().unwrap().to_string());
 
-        Response::new(
+        vec![Response::new(
             ResponseCode::Success,
             ResponseMessage::CommandOkay,
             ResponseType::Complete,
-        )
+        )]
     }
 }
