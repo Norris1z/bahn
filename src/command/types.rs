@@ -4,6 +4,7 @@ pub type CommandArgument<'a> = Option<Cow<'a, str>>;
 #[derive(Debug)]
 pub enum CommandType<'a> {
     Help,
+    Quit,
     User(CommandArgument<'a>),
     // Pass(CommandArgument<'a>),
     // Acct(CommandArgument<'a>),
@@ -21,6 +22,7 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("user") => Some(CommandType::User(
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("quit") => Some(CommandType::Quit),
             // _ if command.eq_ignore_ascii_case("pass") => Some(CommandType::Pass(
             //     command_iterator.next().map(Cow::Borrowed),
             // )),

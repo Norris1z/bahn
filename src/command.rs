@@ -3,6 +3,7 @@ pub mod types;
 
 use crate::command::handler::CommandHandler;
 use crate::command::handler::help::HelpCommandHandler;
+use crate::command::handler::quit::QuitCommandHandler;
 use crate::command::handler::user::UserCommandHandler;
 use crate::command::types::CommandType;
 use crate::response::codes::ResponseCode;
@@ -28,6 +29,7 @@ impl<'a> Command<'a> {
                     Some(Box::new(UserCommandHandler::new(name, self.user)))
                 }
                 Some(CommandType::Help) => Some(Box::new(HelpCommandHandler {})),
+                Some(CommandType::Quit) => Some(Box::new(QuitCommandHandler {})),
                 _ => None,
             };
 

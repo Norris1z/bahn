@@ -4,6 +4,7 @@ use crate::response::{Response, ResponseCollection, ResponseType};
 
 pub mod help;
 pub mod user;
+pub mod quit;
 
 pub trait CommandHandler {
     fn command_can_be_executed(&self) -> bool {

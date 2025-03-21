@@ -9,6 +9,7 @@ pub type ResponseCollection = Vec<Response>;
 pub enum ResponseType {
     Partial,
     Complete,
+    Terminate,
 }
 
 pub struct Response {
@@ -25,6 +26,14 @@ impl Response {
             response_type,
         }
     }
+
+    pub fn is_terminate(&self) -> bool {
+        matches!(self.response_type, ResponseType::Terminate)
+    }
+
+    pub fn is_partial(&self) -> bool {
+        matches!(self.response_type, ResponseType::Partial)
+    }
 }
 
 impl ToString for Response {
@@ -32,11 +41,7 @@ impl ToString for Response {
         format!(
             "{}{}{}\r\n",
             self.code as u16,
-            if matches!(self.response_type, ResponseType::Complete) {
-                " "
-            } else {
-                "-"
-            },
+            if self.is_partial() { "-" } else { " " },
             self.message.get_message()
         )
     }

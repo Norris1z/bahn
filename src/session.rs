@@ -23,18 +23,20 @@ impl Session {
         }
     }
 
-    pub fn process(&mut self, command_type: Option<CommandType>) {
-        self.send_response(Command::new(command_type, &self.user).handle());
+    pub fn process(&mut self, command_type: Option<CommandType>) -> bool {
+        self.send_response(Command::new(command_type, &self.user).handle())
     }
 
-    fn send_response(&mut self, responses: ResponseCollection) -> &mut Self {
+    fn send_response(&mut self, responses: ResponseCollection) -> bool {
         responses.iter().for_each(|response| {
             self.socket_writer
                 .try_write(response.to_string().as_bytes())
                 .unwrap();
         });
 
-        self
+        let last_response = responses.last().unwrap();
+
+        !last_response.is_terminate()
     }
 
     pub fn init(&mut self) {

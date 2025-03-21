@@ -49,7 +49,9 @@ impl Server {
                     let bytes_read = reader.read(&mut buffer).await.unwrap();
                     let data = String::from_utf8_lossy(&buffer[..bytes_read]);
 
-                    session.process(CommandType::from(&data))
+                    if !session.process(CommandType::from(&data)) {
+                        break;
+                    }
                 }
             });
         }
