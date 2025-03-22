@@ -8,6 +8,6 @@ use server::Server;
 
 #[tokio::main]
 async fn main() {
-    let server = Server::new(String::from("127.0.0.1"), 9099, true);
+    let server = Server::from_env(".env");
     server.run().await.unwrap();
 }

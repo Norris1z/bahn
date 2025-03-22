@@ -13,8 +13,20 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(host: String, port: u16, debug: bool) -> Self {
-        Self { host, port, debug }
+    pub fn from_env(env: &str) -> Self {
+        dotenv::from_filename(env).ok();
+
+        Self {
+            host: dotenv::var("SERVER_ADDRESS").expect("SERVER_ADDRESS not set"),
+            port: dotenv::var("SERVER_PORT")
+                .expect("SERVER_PORT not set")
+                .parse()
+                .unwrap(),
+            debug: dotenv::var("DEBUG")
+                .expect("DEBUG not set")
+                .parse()
+                .unwrap(),
+        }
     }
 
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
