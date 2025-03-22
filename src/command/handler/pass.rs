@@ -19,6 +19,10 @@ impl<'a> PassCommandHandler<'a> {
 }
 
 impl<'a> CommandHandler for PassCommandHandler<'a> {
+    fn requires_authentication(&self) -> bool {
+        false
+    }
+
     fn command_can_be_executed(&self) -> bool {
         self.password.is_some()
     }

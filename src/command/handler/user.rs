@@ -1,5 +1,5 @@
 use crate::command::handler::CommandHandler;
-use crate::command::types::CommandArgument;
+use crate::command::types::{CommandArgument};
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
@@ -18,6 +18,10 @@ impl<'a> UserCommandHandler<'a> {
 }
 
 impl<'a> CommandHandler for UserCommandHandler<'a> {
+    fn requires_authentication(&self) -> bool {
+        false
+    }
+
     fn command_can_be_executed(&self) -> bool {
         self.name.is_some()
     }

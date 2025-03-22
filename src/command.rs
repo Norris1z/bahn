@@ -40,6 +40,14 @@ impl<'a> Command<'a> {
             if possible_handler.is_some() {
                 let handler = possible_handler.unwrap();
 
+                if handler.requires_authentication() && !self.user.borrow().is_authenticated {
+                    return vec![Response::new(
+                        ResponseCode::NotLoggedIn,
+                        ResponseMessage::Custom("Please log in with USER and PASS first"),
+                        ResponseType::Complete,
+                    )];
+                }
+
                 if !handler.command_can_be_executed() {
                     return handler.error();
                 }
