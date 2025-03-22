@@ -1,4 +1,5 @@
 use crate::command::types::CommandType;
+use crate::database::Database;
 use crate::session::Session;
 use std::error::Error;
 use tokio::io::AsyncReadExt;
@@ -30,6 +31,18 @@ impl Server {
     }
 
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
+        self.debug_log("Running database migrations".to_string());
+        Database::run_migrations();
+
+        if dotenv::var("SEED_DATABASE")
+            .unwrap()
+            .parse::<bool>()
+            .unwrap()
+        {
+            self.debug_log("Seeding database".to_string());
+            Database::seed();
+        }
+
         let listener = TcpListener::bind((self.host.as_str(), self.port)).await?;
         let mut session_count = 0;
 

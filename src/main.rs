@@ -2,7 +2,7 @@ mod command;
 mod response;
 mod server;
 mod session;
-mod user;
+mod database;
 
 use server::Server;
 

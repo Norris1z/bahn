@@ -3,7 +3,7 @@ use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{ResponseCollection, Response, ResponseType};
-use crate::user::User;
+use crate::session::user::User;
 use std::cell::RefCell;
 
 pub struct UserCommandHandler<'a> {

@@ -9,7 +9,7 @@ use crate::command::types::CommandType;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use crate::user::User;
+use crate::session::user::User;
 use std::cell::RefCell;
 
 pub struct Command<'a> {

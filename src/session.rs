@@ -3,9 +3,11 @@ use crate::command::types::CommandType;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use crate::user::User;
+use user::User;
 use std::cell::RefCell;
 use tokio::net::tcp::OwnedWriteHalf;
+
+pub mod user;
 
 pub struct Session {
     #[allow(dead_code)]
