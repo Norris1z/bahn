@@ -6,4 +6,7 @@ pub enum ResponseCode {
     SyntaxError = 500,
     MissingArgument = 501,
     BadSequence = 503,
+    UserNameOkay = 331,
+    NotLoggedIn = 530,
+    LoginSuccessful = 230,
 }

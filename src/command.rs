@@ -3,6 +3,7 @@ pub mod types;
 
 use crate::command::handler::CommandHandler;
 use crate::command::handler::help::HelpCommandHandler;
+use crate::command::handler::pass::PassCommandHandler;
 use crate::command::handler::quit::QuitCommandHandler;
 use crate::command::handler::user::UserCommandHandler;
 use crate::command::types::CommandType;
@@ -27,6 +28,9 @@ impl<'a> Command<'a> {
             let possible_handler: Option<Box<dyn CommandHandler>> = match &self.command_type {
                 Some(CommandType::User(name)) => {
                     Some(Box::new(UserCommandHandler::new(name, self.user)))
+                }
+                Some(CommandType::Pass(password)) => {
+                    Some(Box::new(PassCommandHandler::new(password, self.user)))
                 }
                 Some(CommandType::Help) => Some(Box::new(HelpCommandHandler {})),
                 Some(CommandType::Quit) => Some(Box::new(QuitCommandHandler {})),

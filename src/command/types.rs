@@ -6,7 +6,7 @@ pub enum CommandType<'a> {
     Help,
     Quit,
     User(CommandArgument<'a>),
-    // Pass(CommandArgument<'a>),
+    Pass(CommandArgument<'a>),
     // Acct(CommandArgument<'a>),
     // Cwd(CommandArgument<'a>),
     // Cdup,
@@ -23,9 +23,9 @@ impl<'a> CommandType<'a> {
                 command_iterator.next().map(Cow::Borrowed),
             )),
             _ if command.eq_ignore_ascii_case("quit") => Some(CommandType::Quit),
-            // _ if command.eq_ignore_ascii_case("pass") => Some(CommandType::Pass(
-            //     command_iterator.next().map(Cow::Borrowed),
-            // )),
+            _ if command.eq_ignore_ascii_case("pass") => Some(CommandType::Pass(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             // _ if command.eq_ignore_ascii_case("acct") => Some(CommandType::Acct(
             //     command_iterator.next().map(Cow::Borrowed),
             // )),

@@ -7,6 +7,8 @@ pub enum ResponseMessage {
     ProjectInfo,
     MissingArgument,
     Custom(&'static str),
+    UserNameOkay,
+    LoginSuccessful,
 }
 
 impl ResponseMessage {
@@ -22,6 +24,8 @@ impl ResponseMessage {
             ResponseMessage::Custom(message) => message,
             ResponseMessage::Help => "Help Okay",
             ResponseMessage::Quit => "Goodbye",
+            ResponseMessage::UserNameOkay => "Username okay, password needed",
+            ResponseMessage::LoginSuccessful => "Login successful",
         }
     }
 }

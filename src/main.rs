@@ -3,6 +3,7 @@ mod response;
 mod server;
 mod session;
 mod database;
+mod auth;
 
 use server::Server;
 

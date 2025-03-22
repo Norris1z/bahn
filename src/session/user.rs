@@ -1,6 +1,7 @@
 pub struct User {
     pub is_authenticated: bool,
     pub username: Option<String>,
+    pub path: Option<String>,
 }
 
 impl User {
@@ -8,6 +9,7 @@ impl User {
         Self {
             is_authenticated: false,
             username: None,
+            path: None,
         }
     }
 }

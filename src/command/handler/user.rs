@@ -2,7 +2,7 @@ use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
-use crate::response::{ResponseCollection, Response, ResponseType};
+use crate::response::{Response, ResponseCollection, ResponseType};
 use crate::session::user::User;
 use std::cell::RefCell;
 
@@ -31,12 +31,11 @@ impl<'a> CommandHandler for UserCommandHandler<'a> {
             )];
         }
 
-        self.user.borrow_mut().is_authenticated = true;
         self.user.borrow_mut().username = Some(self.name.as_deref().unwrap().to_string());
 
         vec![Response::new(
-            ResponseCode::Success,
-            ResponseMessage::CommandOkay,
+            ResponseCode::UserNameOkay,
+            ResponseMessage::UserNameOkay,
             ResponseType::Complete,
         )]
     }
