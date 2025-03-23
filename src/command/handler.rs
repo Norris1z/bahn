@@ -18,7 +18,7 @@ pub trait CommandHandler {
 
     fn error(&self) -> ResponseCollection {
         vec![Response::new(
-            ResponseCode::MissingArgument,
+            ResponseCode::SyntaxErrorInParametersOrArguments,
             ResponseMessage::MissingArgument,
             ResponseType::Complete,
         )]

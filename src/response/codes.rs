@@ -4,7 +4,7 @@ pub enum ResponseCode {
     Quit = 221,
     Help = 214,
     SyntaxError = 500,
-    MissingArgument = 501,
+    SyntaxErrorInParametersOrArguments = 501,
     BadSequence = 503,
     UserNameOkay = 331,
     NotLoggedIn = 530,
