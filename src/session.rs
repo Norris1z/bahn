@@ -4,18 +4,18 @@ use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 use std::cell::RefCell;
-use tokio::net::tcp::WriteHalf;
+use tokio::net::tcp::OwnedWriteHalf;
 use user::User;
 
 pub mod user;
 
-pub struct Session<'client_connection> {
+pub struct Session {
     user: RefCell<User>,
-    socket_writer: WriteHalf<'client_connection>,
+    socket_writer: OwnedWriteHalf,
 }
 
-impl<'client_connection> Session<'client_connection> {
-    pub fn new(socket_writer: WriteHalf<'client_connection>) -> Self {
+impl Session {
+    pub fn new(socket_writer: OwnedWriteHalf) -> Self {
         Self {
             user: RefCell::new(User::new()),
             socket_writer,
