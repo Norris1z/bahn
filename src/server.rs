@@ -1,16 +1,13 @@
-use crate::command::types::CommandType;
+use crate::connection::ControlConnection;
 use crate::database::Database;
-use crate::session::Session;
 use std::error::Error;
-use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
-
-const COMMAND_BUFFER_SIZE: usize = 1024;
 
 pub struct Server {
     pub host: String,
     pub port: u16,
     pub debug: bool,
+    connection_count: u16,
 }
 
 impl Server {
@@ -27,10 +24,11 @@ impl Server {
                 .expect("DEBUG not set")
                 .parse()
                 .unwrap(),
+            connection_count: 0,
         }
     }
 
-    pub async fn run(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         self.debug_log("Running database migrations".to_string());
         Database::run_migrations();
 
@@ -44,7 +42,6 @@ impl Server {
         }
 
         let listener = TcpListener::bind((self.host.as_str(), self.port)).await?;
-        let mut session_count = 0;
 
         self.debug_log(format!(
             "Server listening on {}",
@@ -53,36 +50,33 @@ impl Server {
 
         loop {
             let (socket, _) = listener.accept().await.unwrap();
-            session_count += 1;
+            self.connection_count += 1;
+            let address = socket.peer_addr().unwrap();
 
             self.debug_log(format!(
                 "Accepted connection from {} with session id {}",
-                socket.peer_addr().unwrap(),
-                session_count
+                address, self.connection_count
             ));
 
+            let mut control_connection = ControlConnection::new(
+                self.connection_count,
+                address.to_string(),
+                socket,
+                self.debug,
+            );
+
             tokio::spawn(async move {
-                let mut buffer = [0; COMMAND_BUFFER_SIZE];
-
-                let (mut reader, writer) = socket.into_split();
-
-                let mut session = Session::new(session_count, writer);
-
-                session.init();
-
-                loop {
-                    let bytes_read = reader.read(&mut buffer).await.unwrap();
-                    let data = String::from_utf8_lossy(&buffer[..bytes_read]);
-
-                    if !session.process(CommandType::from(&data)) {
-                        break;
-                    }
-                }
+                control_connection.handle().await;
             });
+
+            self.debug_log(format!(
+                "Connection with session id {} is ready to handle commands",
+                self.connection_count
+            ));
         }
     }
 
-    pub fn debug_log(&self, message: String) {
+    fn debug_log(&self, message: String) {
         if self.debug {
             println!("{}", message);
         }

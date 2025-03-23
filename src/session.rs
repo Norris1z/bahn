@@ -3,23 +3,20 @@ use crate::command::types::CommandType;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use user::User;
 use std::cell::RefCell;
-use tokio::net::tcp::OwnedWriteHalf;
+use tokio::net::tcp::WriteHalf;
+use user::User;
 
 pub mod user;
 
-pub struct Session {
-    #[allow(dead_code)]
-    id: u16,
+pub struct Session<'client_connection> {
     user: RefCell<User>,
-    socket_writer: OwnedWriteHalf,
+    socket_writer: WriteHalf<'client_connection>,
 }
 
-impl Session {
-    pub fn new(id: u16, socket_writer: OwnedWriteHalf) -> Self {
+impl<'client_connection> Session<'client_connection> {
+    pub fn new(socket_writer: WriteHalf<'client_connection>) -> Self {
         Self {
-            id,
             user: RefCell::new(User::new()),
             socket_writer,
         }
@@ -54,5 +51,13 @@ impl Session {
                 ResponseType::Complete,
             ),
         ]);
+    }
+
+    pub fn terminate(&mut self) {
+        self.send_response(vec![Response::new(
+            ResponseCode::SyntaxErrorInParametersOrArguments,
+            ResponseMessage::Custom("Session terminated"),
+            ResponseType::Complete,
+        )]);
     }
 }
