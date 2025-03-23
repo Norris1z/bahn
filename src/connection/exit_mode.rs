@@ -27,6 +27,10 @@ impl ExitMode {
     pub fn from_bytes(bytes: &[u8]) -> Self {
         let first_byte = bytes[0];
 
+        /*
+         * TODO: this currently only handles the IP of telnet. Should it handle all other codes?
+         * https://www.ibm.com/docs/en/zos/2.4.0?topic=problems-telnet-commands-options#telcmds__rfc854
+         */
         if bytes.len() > 2 && first_byte == TELNET_IAC_HEX && bytes[1] == TELNET_IP_HEX {
             Self::TelnetIACIPMode
         } else if first_byte.is_ascii_control() {
