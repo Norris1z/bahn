@@ -14,7 +14,7 @@ impl CommandHandler for HelpCommandHandler {
         vec![
             Response::new(
                 ResponseCode::Help,
-                ResponseMessage::Custom("The following commands are supported. \r\n USER HELP PASS QUIT"),
+                ResponseMessage::Custom("The following commands are supported. \r\n USER HELP PASS QUIT PWD"),
                 ResponseType::Partial,
             ),
             Response::new(

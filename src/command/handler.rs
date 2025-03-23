@@ -6,6 +6,7 @@ pub mod help;
 pub mod pass;
 pub mod quit;
 pub mod user;
+pub mod pwd;
 
 pub trait CommandHandler {
     fn requires_authentication(&self) -> bool {

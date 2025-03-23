@@ -1,5 +1,5 @@
 use crate::command::handler::CommandHandler;
-use crate::command::types::{CommandArgument};
+use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};

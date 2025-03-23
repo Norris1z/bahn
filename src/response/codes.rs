@@ -9,4 +9,5 @@ pub enum ResponseCode {
     UserNameOkay = 331,
     NotLoggedIn = 530,
     LoginSuccessful = 230,
+    DirectoryName = 257,
 }

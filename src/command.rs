@@ -12,6 +12,7 @@ use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 use crate::session::user::User;
 use std::cell::RefCell;
+use crate::command::handler::pwd::PwdCommandHandler;
 
 pub struct Command<'a> {
     command_type: Option<CommandType<'a>>,
@@ -34,6 +35,7 @@ impl<'a> Command<'a> {
                 }
                 Some(CommandType::Help) => Some(Box::new(HelpCommandHandler {})),
                 Some(CommandType::Quit) => Some(Box::new(QuitCommandHandler {})),
+                Some(CommandType::Pwd) => Some(Box::new(PwdCommandHandler::new(self.user))),
                 _ => None,
             };
 
