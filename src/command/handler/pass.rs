@@ -60,6 +60,8 @@ impl<'a> CommandHandler for PassCommandHandler<'a> {
         self.user.borrow_mut().is_authenticated = true;
         self.user.borrow_mut().path = path;
 
+        self.user.borrow_mut().setup_filesystem();
+
         vec![Response::new(
             ResponseCode::LoginSuccessful,
             ResponseMessage::LoginSuccessful,

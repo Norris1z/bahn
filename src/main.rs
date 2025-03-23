@@ -6,6 +6,7 @@ mod database;
 mod response;
 mod server;
 mod session;
+mod filesystem;
 
 use server::Server;
 

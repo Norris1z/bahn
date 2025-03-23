@@ -61,7 +61,9 @@ impl ControlConnection {
                                 self.session.terminate();
                                 break;
                             }
-                            None => {}
+                            None => {
+                                self.debug_log(format!("Unknown command: {}", data).as_str());
+                            }
                         }
                     }
 
