@@ -5,17 +5,17 @@ use crate::response::{Response, ResponseCollection, ResponseType};
 use crate::session::user::User;
 use std::cell::RefCell;
 
-pub struct PwdCommandHandler<'a> {
+pub struct CdupCommandHandler<'a> {
     user: &'a RefCell<User>,
 }
 
-impl<'a> PwdCommandHandler<'a> {
+impl<'a> CdupCommandHandler<'a> {
     pub fn new(user: &'a RefCell<User>) -> Self {
         Self { user }
     }
 }
 
-impl<'a> CommandHandler for PwdCommandHandler<'a> {
+impl<'a> CommandHandler for CdupCommandHandler<'a> {
     fn requires_authentication(&self) -> bool {
         true
     }
@@ -23,14 +23,13 @@ impl<'a> CommandHandler for PwdCommandHandler<'a> {
     fn handle(&self) -> ResponseCollection {
         let user = self.user.borrow();
 
-        let filesystem = user.filesystem.as_ref();
+        let mut filesystem = user.filesystem.as_ref().unwrap().borrow_mut();
+
+        filesystem.change_directory("..");
 
         vec![Response::new(
-            ResponseCode::DirectoryName,
-            ResponseMessage::DirectoryNameCommentary(
-                filesystem.unwrap().borrow().get_current_directory(),
-                "is the current directory",
-            ),
+            ResponseCode::Success,
+            ResponseMessage::Custom("Working directory changed to parent directory"),
             ResponseType::Complete,
         )]
     }

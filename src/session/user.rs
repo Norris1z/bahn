@@ -1,10 +1,11 @@
 use crate::filesystem::filesystem::VirtualFilesystem;
+use std::cell::RefCell;
 
 pub struct User {
     pub is_authenticated: bool,
     pub username: Option<String>,
     pub path: Option<String>,
-    pub filesystem: Option<VirtualFilesystem>,
+    pub filesystem: Option<RefCell<VirtualFilesystem>>,
 }
 
 impl User {
@@ -21,6 +22,6 @@ impl User {
         let filesystem = VirtualFilesystem::new(self.path.clone().unwrap());
         filesystem.setup();
 
-        self.filesystem = Some(filesystem);
+        self.filesystem = Some(RefCell::new(filesystem));
     }
 }

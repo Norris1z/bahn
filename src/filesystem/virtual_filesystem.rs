@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::{MAIN_SEPARATOR, Path};
+use std::path::{Component, MAIN_SEPARATOR, PathBuf};
 
 pub struct VirtualFilesystem {
     mount_point: String,
@@ -11,22 +11,67 @@ impl VirtualFilesystem {
     pub fn new(home_directory: String) -> Self {
         Self {
             mount_point: dotenv::var("STORAGE_MOUNT_PATH").expect("STORAGE_MOUNT_PATH not set"),
-            home_directory,
+            home_directory: VirtualFilesystem::trim_leading_slash(&home_directory),
             current_directory: String::from("/"),
         }
     }
 
     pub fn setup(&self) {
-        let home_directory = Path::new(self.home_directory.as_str())
-            .strip_prefix(MAIN_SEPARATOR.to_string())
-            .unwrap();
-
-        let path = Path::new(self.mount_point.as_str()).join(home_directory);
-
-        fs::create_dir_all(path).unwrap();
+        fs::create_dir_all(self.get_relative_path("")).unwrap();
     }
 
     pub fn get_current_directory(&self) -> String {
         self.current_directory.clone()
+    }
+
+    fn trim_leading_slash(path: &str) -> String {
+        path.trim_start_matches(MAIN_SEPARATOR).to_string()
+    }
+
+    fn canonicalize_path(&self, path: &str) -> PathBuf {
+        let mut path_buffer = PathBuf::from(self.current_directory.as_str());
+
+        if !path.is_empty() {
+            for component in PathBuf::from(path).components() {
+                match component {
+                    Component::ParentDir => {
+                        path_buffer.pop();
+                    }
+                    Component::Normal(part) => path_buffer.push(part),
+                    _ => {}
+                }
+            }
+        }
+
+        path_buffer
+    }
+    fn get_relative_path(&self, path: &str) -> PathBuf {
+        let mut path_buffer = PathBuf::from(self.mount_point.as_str());
+        path_buffer.push(self.home_directory.as_str());
+
+        path_buffer.push(VirtualFilesystem::trim_leading_slash(
+            self.canonicalize_path(path).to_str().unwrap(),
+        ));
+
+        path_buffer
+    }
+
+    pub fn exists(&self, path: &str) -> bool {
+        self.get_relative_path(path)
+            .try_exists()
+            .unwrap_or_else(|_| false)
+    }
+
+    pub fn create_directory(&self, path: &str) -> Option<String> {
+        let resource = self.get_relative_path(path);
+
+        match fs::create_dir(resource) {
+            Ok(_) => Some(self.canonicalize_path(path).to_str()?.to_string()),
+            Err(_) => None,
+        }
+    }
+
+    pub fn change_directory(&mut self, path: &str) {
+        self.current_directory = self.canonicalize_path(path).to_str().unwrap().to_string();
     }
 }

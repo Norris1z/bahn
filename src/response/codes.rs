@@ -10,4 +10,6 @@ pub enum ResponseCode {
     NotLoggedIn = 530,
     LoginSuccessful = 230,
     DirectoryName = 257,
+    RequestedActionNotTaken = 550,
+    FileActionOkay = 250,
 }

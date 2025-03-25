@@ -8,9 +8,9 @@ pub enum CommandType<'a> {
     User(CommandArgument<'a>),
     Pass(CommandArgument<'a>),
     Pwd,
-    // Acct(CommandArgument<'a>),
-    // Cwd(CommandArgument<'a>),
-    // Cdup,
+    Mkd(CommandArgument<'a>),
+    Cwd(CommandArgument<'a>),
+    Cdup,
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -28,13 +28,13 @@ impl<'a> CommandType<'a> {
                 command_iterator.next().map(Cow::Borrowed),
             )),
             _ if command.eq_ignore_ascii_case("pwd") => Some(CommandType::Pwd),
-            // _ if command.eq_ignore_ascii_case("acct") => Some(CommandType::Acct(
-            //     command_iterator.next().map(Cow::Borrowed),
-            // )),
-            // _ if command.eq_ignore_ascii_case("cwd") => {
-            //     Some(CommandType::Cwd(command_iterator.next().map(Cow::Borrowed)))
-            // }
-            // _ if command.eq_ignore_ascii_case("cdup") => Some(CommandType::Cdup),
+            _ if command.eq_ignore_ascii_case("mkd") => {
+                Some(CommandType::Mkd(command_iterator.next().map(Cow::Borrowed)))
+            }
+            _ if command.eq_ignore_ascii_case("cwd") => {
+                Some(CommandType::Cwd(command_iterator.next().map(Cow::Borrowed)))
+            }
+            _ if command.eq_ignore_ascii_case("cdup") => Some(CommandType::Cdup),
             _ => None,
         }
     }

@@ -2,8 +2,12 @@ pub mod handler;
 pub mod types;
 
 use crate::command::handler::CommandHandler;
+use crate::command::handler::cdup::CdupCommandHandler;
+use crate::command::handler::cwd::CwdCommandHandler;
 use crate::command::handler::help::HelpCommandHandler;
+use crate::command::handler::mkd::MkdCommandHandler;
 use crate::command::handler::pass::PassCommandHandler;
+use crate::command::handler::pwd::PwdCommandHandler;
 use crate::command::handler::quit::QuitCommandHandler;
 use crate::command::handler::user::UserCommandHandler;
 use crate::command::types::CommandType;
@@ -12,7 +16,6 @@ use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 use crate::session::user::User;
 use std::cell::RefCell;
-use crate::command::handler::pwd::PwdCommandHandler;
 
 pub struct Command<'a> {
     command_type: Option<CommandType<'a>>,
@@ -36,6 +39,13 @@ impl<'a> Command<'a> {
                 Some(CommandType::Help) => Some(Box::new(HelpCommandHandler {})),
                 Some(CommandType::Quit) => Some(Box::new(QuitCommandHandler {})),
                 Some(CommandType::Pwd) => Some(Box::new(PwdCommandHandler::new(self.user))),
+                Some(CommandType::Mkd(path)) => {
+                    Some(Box::new(MkdCommandHandler::new(path, self.user)))
+                }
+                Some(CommandType::Cwd(path)) => {
+                    Some(Box::new(CwdCommandHandler::new(path, self.user)))
+                }
+                Some(CommandType::Cdup) => Some(Box::new(CdupCommandHandler::new(self.user))),
                 _ => None,
             };
 
