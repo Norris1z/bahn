@@ -1,4 +1,5 @@
 use crate::command::Command;
+use crate::command::context::CommandContext;
 use crate::command::types::CommandType;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
@@ -23,7 +24,10 @@ impl Session {
     }
 
     pub fn process(&mut self, command_type: Option<CommandType>) -> bool {
-        self.send_response(Command::new(command_type, &self.user).handle())
+        let command = Command::new(command_type, &self.user);
+        let context = CommandContext::new(&self.user);
+
+        self.send_response(command.handle(context))
     }
 
     fn send_response(&mut self, responses: ResponseCollection) -> bool {

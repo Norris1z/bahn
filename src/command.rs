@@ -1,6 +1,8 @@
+pub mod context;
 pub mod handler;
 pub mod types;
 
+use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::handler::cdup::CdupCommandHandler;
 use crate::command::handler::cwd::CwdCommandHandler;
@@ -27,25 +29,19 @@ impl<'a> Command<'a> {
         Self { command_type, user }
     }
 
-    pub fn handle(&self) -> ResponseCollection {
+    pub fn handle(&self, context: CommandContext) -> ResponseCollection {
         if self.command_type.is_some() {
             let possible_handler: Option<Box<dyn CommandHandler>> = match &self.command_type {
-                Some(CommandType::User(name)) => {
-                    Some(Box::new(UserCommandHandler::new(name, self.user)))
-                }
+                Some(CommandType::User(name)) => Some(Box::new(UserCommandHandler::new(name))),
                 Some(CommandType::Pass(password)) => {
-                    Some(Box::new(PassCommandHandler::new(password, self.user)))
+                    Some(Box::new(PassCommandHandler::new(password)))
                 }
                 Some(CommandType::Help) => Some(Box::new(HelpCommandHandler {})),
                 Some(CommandType::Quit) => Some(Box::new(QuitCommandHandler {})),
-                Some(CommandType::Pwd) => Some(Box::new(PwdCommandHandler::new(self.user))),
-                Some(CommandType::Mkd(path)) => {
-                    Some(Box::new(MkdCommandHandler::new(path, self.user)))
-                }
-                Some(CommandType::Cwd(path)) => {
-                    Some(Box::new(CwdCommandHandler::new(path, self.user)))
-                }
-                Some(CommandType::Cdup) => Some(Box::new(CdupCommandHandler::new(self.user))),
+                Some(CommandType::Pwd) => Some(Box::new(PwdCommandHandler {})),
+                Some(CommandType::Mkd(path)) => Some(Box::new(MkdCommandHandler::new(path))),
+                Some(CommandType::Cwd(path)) => Some(Box::new(CwdCommandHandler::new(path))),
+                Some(CommandType::Cdup) => Some(Box::new(CdupCommandHandler {})),
                 _ => None,
             };
 
@@ -64,7 +60,7 @@ impl<'a> Command<'a> {
                     return handler.error();
                 }
 
-                return handler.handle();
+                return handler.handle(context);
             }
         }
 

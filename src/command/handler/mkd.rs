@@ -1,19 +1,17 @@
+use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use crate::session::user::User;
-use std::cell::RefCell;
 
 pub struct MkdCommandHandler<'a> {
     path: &'a CommandArgument<'a>,
-    user: &'a RefCell<User>,
 }
 
 impl<'a> MkdCommandHandler<'a> {
-    pub fn new(path: &'a CommandArgument<'a>, user: &'a RefCell<User>) -> Self {
-        Self { path, user }
+    pub fn new(path: &'a CommandArgument<'a>) -> Self {
+        Self { path }
     }
 }
 impl<'a> CommandHandler for MkdCommandHandler<'a> {
@@ -25,14 +23,10 @@ impl<'a> CommandHandler for MkdCommandHandler<'a> {
         self.path.is_some()
     }
 
-    fn handle(&self) -> ResponseCollection {
-        let user_borrow = self.user.borrow();
-
-        let filesystem = user_borrow.filesystem.as_ref().unwrap();
-
+    fn handle(&self, context: CommandContext) -> ResponseCollection {
         let path = self.path.as_deref().unwrap();
 
-        if filesystem.borrow().exists(path) {
+        if context.directory_exists(path) {
             return vec![Response::new(
                 ResponseCode::RequestedActionNotTaken,
                 ResponseMessage::Custom("File or directory already exists"),
@@ -40,7 +34,7 @@ impl<'a> CommandHandler for MkdCommandHandler<'a> {
             )];
         }
 
-        let directory = filesystem.borrow().create_directory(path);
+        let directory = context.create_directory(path);
 
         if directory.is_none() {
             return vec![Response::new(

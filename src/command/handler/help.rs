@@ -1,3 +1,4 @@
+use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
@@ -10,7 +11,7 @@ impl CommandHandler for HelpCommandHandler {
         false
     }
 
-    fn handle(&self) -> ResponseCollection {
+    fn handle(&self, _: CommandContext) -> ResponseCollection {
         vec![
             Response::new(
                 ResponseCode::Help,

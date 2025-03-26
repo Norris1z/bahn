@@ -1,20 +1,18 @@
 use crate::auth::Auth;
+use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use crate::session::user::User;
-use std::cell::RefCell;
 
 pub struct PassCommandHandler<'a> {
     password: &'a CommandArgument<'a>,
-    user: &'a RefCell<User>,
 }
 
 impl<'a> PassCommandHandler<'a> {
-    pub fn new(password: &'a CommandArgument<'a>, user: &'a RefCell<User>) -> Self {
-        Self { password, user }
+    pub fn new(password: &'a CommandArgument<'a>) -> Self {
+        Self { password }
     }
 }
 
@@ -27,8 +25,8 @@ impl<'a> CommandHandler for PassCommandHandler<'a> {
         self.password.is_some()
     }
 
-    fn handle(&self) -> ResponseCollection {
-        if self.user.borrow().is_authenticated {
+    fn handle(&self, context: CommandContext) -> ResponseCollection {
+        if context.is_authenticated() {
             return vec![Response::new(
                 ResponseCode::BadSequence,
                 ResponseMessage::Custom("Already authenticated."),
@@ -36,7 +34,9 @@ impl<'a> CommandHandler for PassCommandHandler<'a> {
             )];
         }
 
-        if self.user.borrow().username.is_none() {
+        let username = context.get_username();
+
+        if username.is_none() {
             return vec![Response::new(
                 ResponseCode::BadSequence,
                 ResponseMessage::Custom("Login with USER first"),
@@ -45,7 +45,7 @@ impl<'a> CommandHandler for PassCommandHandler<'a> {
         }
 
         let path = Auth::attempt(
-            self.user.borrow().username.as_deref().unwrap(),
+            username.unwrap().as_str(),
             self.password.as_deref().unwrap(),
         );
 
@@ -57,10 +57,7 @@ impl<'a> CommandHandler for PassCommandHandler<'a> {
             )];
         }
 
-        self.user.borrow_mut().is_authenticated = true;
-        self.user.borrow_mut().path = path;
-
-        self.user.borrow_mut().setup_filesystem();
+        context.initialize_user_environment(path);
 
         vec![Response::new(
             ResponseCode::LoginSuccessful,

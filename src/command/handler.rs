@@ -1,3 +1,4 @@
+use crate::command::context::CommandContext;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
@@ -28,5 +29,5 @@ pub trait CommandHandler {
         )]
     }
 
-    fn handle(&self) -> ResponseCollection;
+    fn handle(&self, context: CommandContext) -> ResponseCollection;
 }
