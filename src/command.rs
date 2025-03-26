@@ -23,24 +23,36 @@ impl<'a> Command<'a> {
             let handler = command_type.get_handler();
 
             if command_type.has_a_missing_argument() {
-                return vec![Response::new(
-                    ResponseCode::SyntaxErrorInParametersOrArguments,
-                    ResponseMessage::MissingArgument,
-                    ResponseType::Complete,
-                )];
+                return self.missing_argument_response();
             }
 
             if command_type.requires_authentication() && !context.is_authenticated() {
-                return vec![Response::new(
-                    ResponseCode::NotLoggedIn,
-                    ResponseMessage::Custom("Please log in with USER and PASS first"),
-                    ResponseType::Complete,
-                )];
+                return self.authentication_required_response();
             }
 
             return handler.handle(context);
         }
 
+        self.wrong_command_response()
+    }
+
+    fn missing_argument_response(&self) -> ResponseCollection {
+        vec![Response::new(
+            ResponseCode::SyntaxErrorInParametersOrArguments,
+            ResponseMessage::MissingArgument,
+            ResponseType::Complete,
+        )]
+    }
+
+    fn authentication_required_response(&self) -> ResponseCollection {
+        vec![Response::new(
+            ResponseCode::NotLoggedIn,
+            ResponseMessage::Custom("Please log in with USER and PASS first"),
+            ResponseType::Complete,
+        )]
+    }
+
+    fn wrong_command_response(&self) -> ResponseCollection {
         vec![Response::new(
             ResponseCode::SyntaxError,
             ResponseMessage::WrongCommand,
