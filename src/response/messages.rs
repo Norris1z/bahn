@@ -8,6 +8,7 @@ pub enum ResponseMessage {
     ProjectInfo,
     MissingArgument,
     Custom(&'static str),
+    CustomString(String),
     UserNameOkay,
     LoginSuccessful,
     DirectoryNameCommentary(String, &'static str),
@@ -30,6 +31,7 @@ impl ResponseMessage {
             ResponseMessage::DirectoryNameCommentary(path, commentary) => {
                 Cow::Owned(format!(r#""{}" {}"#, path, commentary))
             }
+            ResponseMessage::CustomString(message) => Cow::Owned(message.to_owned()),
         }
     }
 }

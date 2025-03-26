@@ -6,6 +6,7 @@ use crate::command::handler::mkd::MkdCommandHandler;
 use crate::command::handler::pass::PassCommandHandler;
 use crate::command::handler::pwd::PwdCommandHandler;
 use crate::command::handler::quit::QuitCommandHandler;
+use crate::command::handler::rtype::TypeHandler;
 use crate::command::handler::user::UserCommandHandler;
 use std::borrow::Cow;
 
@@ -20,6 +21,7 @@ pub enum CommandType<'a> {
     Mkd(CommandArgument<'a>),
     Cwd(CommandArgument<'a>),
     Cdup,
+    Type(CommandArgument<'a>, CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -44,6 +46,10 @@ impl<'a> CommandType<'a> {
                 Some(CommandType::Cwd(command_iterator.next().map(Cow::Borrowed)))
             }
             _ if command.eq_ignore_ascii_case("cdup") => Some(CommandType::Cdup),
+            _ if command.eq_ignore_ascii_case("type") => Some(CommandType::Type(
+                command_iterator.next().map(Cow::Borrowed),
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -53,7 +59,8 @@ impl<'a> CommandType<'a> {
             CommandType::User(argument)
             | CommandType::Pass(argument)
             | CommandType::Mkd(argument)
-            | CommandType::Cwd(argument) => argument.is_none(),
+            | CommandType::Cwd(argument)
+            | CommandType::Type(argument, _) => argument.is_none(),
             _ => false,
         }
     }
@@ -77,6 +84,7 @@ impl<'a> CommandType<'a> {
             CommandType::Mkd(path) => Box::new(MkdCommandHandler::new(path)),
             CommandType::Cwd(path) => Box::new(CwdCommandHandler::new(path)),
             CommandType::Cdup => Box::new(CdupCommandHandler {}),
+            CommandType::Type(code, option) => Box::new(TypeHandler::new(code, option)),
         }
     }
 }

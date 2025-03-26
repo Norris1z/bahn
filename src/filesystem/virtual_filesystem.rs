@@ -1,3 +1,4 @@
+use crate::filesystem::file::representation_type::RepresentationType;
 use std::fs;
 use std::path::{Component, MAIN_SEPARATOR, PathBuf};
 
@@ -5,6 +6,7 @@ pub struct VirtualFilesystem {
     mount_point: String,
     home_directory: String,
     current_directory: String,
+    representation_type: Option<RepresentationType>,
 }
 
 impl VirtualFilesystem {
@@ -13,6 +15,7 @@ impl VirtualFilesystem {
             mount_point: dotenv::var("STORAGE_MOUNT_PATH").expect("STORAGE_MOUNT_PATH not set"),
             home_directory: VirtualFilesystem::trim_leading_slash(&home_directory),
             current_directory: String::from("/"),
+            representation_type: None,
         }
     }
 
@@ -73,5 +76,9 @@ impl VirtualFilesystem {
 
     pub fn change_directory(&mut self, path: &str) {
         self.current_directory = self.canonicalize_path(path).to_str().unwrap().to_string();
+    }
+
+    pub fn set_representation_type(&mut self, representation_type: RepresentationType) {
+        self.representation_type = Some(representation_type)
     }
 }

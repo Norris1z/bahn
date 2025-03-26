@@ -9,6 +9,7 @@ pub mod pass;
 pub mod pwd;
 pub mod quit;
 pub mod user;
+pub mod rtype;
 
 pub trait CommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection;

@@ -1,3 +1,4 @@
+use crate::filesystem::file::representation_type::RepresentationType;
 use crate::session::user::User;
 use std::cell::RefCell;
 
@@ -67,5 +68,15 @@ impl<'a> CommandContext<'a> {
             .unwrap()
             .borrow_mut()
             .change_directory(path)
+    }
+
+    pub fn set_representation_type(&self, representation_type: RepresentationType) {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow_mut()
+            .set_representation_type(representation_type)
     }
 }
