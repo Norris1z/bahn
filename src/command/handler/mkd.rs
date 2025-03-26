@@ -15,14 +15,6 @@ impl<'a> MkdCommandHandler<'a> {
     }
 }
 impl<'a> CommandHandler for MkdCommandHandler<'a> {
-    fn requires_authentication(&self) -> bool {
-        true
-    }
-
-    fn command_can_be_executed(&self) -> bool {
-        self.path.is_some()
-    }
-
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         let path = self.path.as_deref().unwrap();
 

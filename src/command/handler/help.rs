@@ -7,10 +7,6 @@ use crate::response::{Response, ResponseCollection, ResponseType};
 pub struct HelpCommandHandler {}
 
 impl CommandHandler for HelpCommandHandler {
-    fn requires_authentication(&self) -> bool {
-        false
-    }
-
     fn handle(&self, _: CommandContext) -> ResponseCollection {
         vec![
             Response::new(

@@ -7,10 +7,6 @@ use crate::response::{Response, ResponseCollection, ResponseType};
 pub struct PwdCommandHandler {}
 
 impl CommandHandler for PwdCommandHandler {
-    fn requires_authentication(&self) -> bool {
-        true
-    }
-
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         vec![Response::new(
             ResponseCode::DirectoryName,

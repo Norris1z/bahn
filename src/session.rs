@@ -24,7 +24,7 @@ impl Session {
     }
 
     pub fn process(&mut self, command_type: Option<CommandType>) -> bool {
-        let command = Command::new(command_type, &self.user);
+        let command = Command::new(command_type);
         let context = CommandContext::new(&self.user);
 
         self.send_response(command.handle(context))

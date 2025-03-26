@@ -1,3 +1,12 @@
+use crate::command::handler::CommandHandler;
+use crate::command::handler::cdup::CdupCommandHandler;
+use crate::command::handler::cwd::CwdCommandHandler;
+use crate::command::handler::help::HelpCommandHandler;
+use crate::command::handler::mkd::MkdCommandHandler;
+use crate::command::handler::pass::PassCommandHandler;
+use crate::command::handler::pwd::PwdCommandHandler;
+use crate::command::handler::quit::QuitCommandHandler;
+use crate::command::handler::user::UserCommandHandler;
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -36,6 +45,38 @@ impl<'a> CommandType<'a> {
             }
             _ if command.eq_ignore_ascii_case("cdup") => Some(CommandType::Cdup),
             _ => None,
+        }
+    }
+
+    pub fn has_a_missing_argument(&self) -> bool {
+        match self {
+            CommandType::User(argument)
+            | CommandType::Pass(argument)
+            | CommandType::Mkd(argument)
+            | CommandType::Cwd(argument) => argument.is_none(),
+            _ => false,
+        }
+    }
+
+    pub fn requires_authentication(&self) -> bool {
+        match self {
+            CommandType::Help | CommandType::Quit | CommandType::User(_) | CommandType::Pass(_) => {
+                false
+            }
+            _ => true,
+        }
+    }
+
+    pub fn get_handler(&self) -> Box<dyn CommandHandler + '_> {
+        match self {
+            CommandType::User(name) => Box::new(UserCommandHandler::new(name)),
+            CommandType::Help => Box::new(HelpCommandHandler {}),
+            CommandType::Quit => Box::new(QuitCommandHandler {}),
+            CommandType::Pass(password) => Box::new(PassCommandHandler::new(password)),
+            CommandType::Pwd => Box::new(PwdCommandHandler {}),
+            CommandType::Mkd(path) => Box::new(MkdCommandHandler::new(path)),
+            CommandType::Cwd(path) => Box::new(CwdCommandHandler::new(path)),
+            CommandType::Cdup => Box::new(CdupCommandHandler {}),
         }
     }
 }

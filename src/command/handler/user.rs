@@ -16,14 +16,6 @@ impl<'a> UserCommandHandler<'a> {
 }
 
 impl<'a> CommandHandler for UserCommandHandler<'a> {
-    fn requires_authentication(&self) -> bool {
-        false
-    }
-
-    fn command_can_be_executed(&self) -> bool {
-        self.name.is_some()
-    }
-
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         if context.is_authenticated() {
             return vec![Response::new(
