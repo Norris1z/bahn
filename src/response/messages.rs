@@ -12,6 +12,7 @@ pub enum ResponseMessage {
     UserNameOkay,
     LoginSuccessful,
     DirectoryNameCommentary(String, &'static str),
+    CantOpenDataConnection,
 }
 
 impl ResponseMessage {
@@ -32,6 +33,7 @@ impl ResponseMessage {
                 Cow::Owned(format!(r#""{}" {}"#, path, commentary))
             }
             ResponseMessage::CustomString(message) => Cow::Owned(message.to_owned()),
+            ResponseMessage::CantOpenDataConnection => Cow::Borrowed("Can't open data connection"),
         }
     }
 }

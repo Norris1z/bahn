@@ -3,10 +3,12 @@ use crate::command::handler::cdup::CdupCommandHandler;
 use crate::command::handler::cwd::CwdCommandHandler;
 use crate::command::handler::help::HelpCommandHandler;
 use crate::command::handler::mkd::MkdCommandHandler;
+use crate::command::handler::nlst::NlstCommandHandler;
 use crate::command::handler::pass::PassCommandHandler;
+use crate::command::handler::pasv::PasvHandler;
 use crate::command::handler::pwd::PwdCommandHandler;
 use crate::command::handler::quit::QuitCommandHandler;
-use crate::command::handler::rtype::TypeHandler;
+use crate::command::handler::rtype::TypeCommandHandler;
 use crate::command::handler::user::UserCommandHandler;
 use std::borrow::Cow;
 
@@ -22,6 +24,8 @@ pub enum CommandType<'a> {
     Cwd(CommandArgument<'a>),
     Cdup,
     Type(CommandArgument<'a>, CommandArgument<'a>),
+    Pasv,
+    Nlst(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -50,6 +54,10 @@ impl<'a> CommandType<'a> {
                 command_iterator.next().map(Cow::Borrowed),
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("pasv") => Some(CommandType::Pasv),
+            _ if command.eq_ignore_ascii_case("nlst") => Some(CommandType::Nlst(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -74,6 +82,13 @@ impl<'a> CommandType<'a> {
         }
     }
 
+    pub fn should_send_via_data_connection(&self) -> bool {
+        match self {
+            CommandType::Nlst(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn get_handler(&self) -> Box<dyn CommandHandler + '_> {
         match self {
             CommandType::User(name) => Box::new(UserCommandHandler::new(name)),
@@ -84,7 +99,9 @@ impl<'a> CommandType<'a> {
             CommandType::Mkd(path) => Box::new(MkdCommandHandler::new(path)),
             CommandType::Cwd(path) => Box::new(CwdCommandHandler::new(path)),
             CommandType::Cdup => Box::new(CdupCommandHandler {}),
-            CommandType::Type(code, option) => Box::new(TypeHandler::new(code, option)),
+            CommandType::Type(code, option) => Box::new(TypeCommandHandler::new(code, option)),
+            CommandType::Pasv => Box::new(PasvHandler {}),
+            CommandType::Nlst(path) => Box::new(NlstCommandHandler::new(path)),
         }
     }
 }

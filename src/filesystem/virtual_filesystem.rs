@@ -1,4 +1,5 @@
 use crate::filesystem::file::representation_type::RepresentationType;
+use std::borrow::Cow;
 use std::fs;
 use std::path::{Component, MAIN_SEPARATOR, PathBuf};
 
@@ -80,5 +81,22 @@ impl VirtualFilesystem {
 
     pub fn set_representation_type(&mut self, representation_type: RepresentationType) {
         self.representation_type = Some(representation_type)
+    }
+
+    pub fn list_directory_content_names(&self, path: &Cow<str>) -> Vec<String> {
+        let path = self.canonicalize_path(path.as_ref());
+        let directory = path.to_str().unwrap();
+
+        let mut content = vec![];
+
+        if let Ok(entries) = fs::read_dir(directory) {
+            for entry in entries {
+                if let Ok(entry) = entry {
+                    content.push(entry.file_name().to_str().unwrap().to_string());
+                }
+            }
+        }
+
+        content
     }
 }

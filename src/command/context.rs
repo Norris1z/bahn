@@ -1,14 +1,29 @@
+use std::borrow::Cow;
+use crate::connection::data_connection::DataConnection;
 use crate::filesystem::file::representation_type::RepresentationType;
+use crate::response::ResponseCollection;
 use crate::session::user::User;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
+use std::sync::mpsc;
+use std::sync::mpsc::Sender;
 
 pub struct CommandContext<'a> {
     user: &'a RefCell<User>,
+    data_connection_created: &'a Cell<bool>,
+    communication_channel: &'a RefCell<Option<Sender<ResponseCollection>>>,
 }
 
 impl<'a> CommandContext<'a> {
-    pub fn new(user: &'a RefCell<User>) -> Self {
-        Self { user }
+    pub fn new(
+        user: &'a RefCell<User>,
+        data_connection_created: &'a Cell<bool>,
+        communication_channel: &'a RefCell<Option<Sender<ResponseCollection>>>,
+    ) -> Self {
+        Self {
+            user,
+            data_connection_created,
+            communication_channel,
+        }
     }
 
     pub fn is_authenticated(&self) -> bool {
@@ -78,5 +93,42 @@ impl<'a> CommandContext<'a> {
             .unwrap()
             .borrow_mut()
             .set_representation_type(representation_type)
+    }
+
+    pub fn create_data_connection(&self) -> Option<String> {
+        let connection = DataConnection::new();
+
+        if connection.connection.is_none() {
+            return None;
+        }
+
+        let address = connection.get_address();
+
+        println!("{:?}", address);
+
+        let (sender, receiver) = mpsc::channel();
+
+        self.communication_channel.borrow_mut().replace(sender);
+
+        std::thread::spawn(move || connection.handle_client_connection(receiver));
+
+        self.data_connection_created.replace(true);
+
+        let ip = address?.ip().to_string().replace(".", ",");
+        let port = address?.port();
+
+        Some(format!("{},{},{}", ip, port / 256, port % 256))
+    }
+
+    pub fn has_data_connection(&self) -> bool {
+        self.data_connection_created.get()
+    }
+
+    pub fn list_directory_content_names(&self, path: &Cow<str>) -> Vec<String> {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap().borrow().list_directory_content_names(path)
     }
 }

@@ -10,12 +10,12 @@ use crate::response::{Response, ResponseCollection, ResponseType};
 const SUPPORTED_REPRESENTATION_TYPES: &str =
     "Unsupported type. Supported types are I, I N, A and A N";
 
-pub struct TypeHandler<'a> {
+pub struct TypeCommandHandler<'a> {
     code: &'a CommandArgument<'a>,
     option: &'a CommandArgument<'a>,
 }
 
-impl<'a> TypeHandler<'a> {
+impl<'a> TypeCommandHandler<'a> {
     pub fn new(code: &'a CommandArgument<'a>, option: &'a CommandArgument<'a>) -> Self {
         Self { code, option }
     }
@@ -55,7 +55,7 @@ impl<'a> TypeHandler<'a> {
     }
 }
 
-impl<'a> CommandHandler for TypeHandler<'a> {
+impl<'a> CommandHandler for TypeCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         let code = self.code.as_ref().unwrap().to_uppercase();
 
