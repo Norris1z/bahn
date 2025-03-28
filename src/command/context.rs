@@ -131,4 +131,12 @@ impl<'a> CommandContext<'a> {
             .as_ref()
             .unwrap().borrow().list_directory_content_names(path)
     }
+
+    pub fn list_directory_detailed_content_information(&self, path: &Cow<str>) -> Vec<String> {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap().borrow().list_directory_detailed_content_information(path)
+    }
 }

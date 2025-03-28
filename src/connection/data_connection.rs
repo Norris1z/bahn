@@ -45,7 +45,7 @@ impl DataConnection {
                             stream
                                 .as_ref()
                                 .unwrap()
-                                .write_all(response.to_string().as_bytes())
+                                .write_all(response.message.get_message().to_string().as_bytes())
                                 .unwrap_or(()) //not sure how to handle errors in this case
                         }
                     }

@@ -2,6 +2,7 @@ use crate::command::handler::CommandHandler;
 use crate::command::handler::cdup::CdupCommandHandler;
 use crate::command::handler::cwd::CwdCommandHandler;
 use crate::command::handler::help::HelpCommandHandler;
+use crate::command::handler::list::ListCommandHandler;
 use crate::command::handler::mkd::MkdCommandHandler;
 use crate::command::handler::nlst::NlstCommandHandler;
 use crate::command::handler::pass::PassCommandHandler;
@@ -26,6 +27,7 @@ pub enum CommandType<'a> {
     Type(CommandArgument<'a>, CommandArgument<'a>),
     Pasv,
     Nlst(CommandArgument<'a>),
+    List(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -58,6 +60,9 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("nlst") => Some(CommandType::Nlst(
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("list") => Some(CommandType::List(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -84,7 +89,7 @@ impl<'a> CommandType<'a> {
 
     pub fn should_send_via_data_connection(&self) -> bool {
         match self {
-            CommandType::Nlst(_) => true,
+            CommandType::Nlst(_) | CommandType::List(_) => true,
             _ => false,
         }
     }
@@ -102,6 +107,7 @@ impl<'a> CommandType<'a> {
             CommandType::Type(code, option) => Box::new(TypeCommandHandler::new(code, option)),
             CommandType::Pasv => Box::new(PasvHandler {}),
             CommandType::Nlst(path) => Box::new(NlstCommandHandler::new(path)),
+            CommandType::List(path) => Box::new(ListCommandHandler::new(path)),
         }
     }
 }

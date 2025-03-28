@@ -67,6 +67,8 @@ impl ControlConnection {
                         }
                     }
 
+                    self.debug_log(format!("Processing command {:?}", command_type).as_str());
+
                     if !self.session.process(command_type) {
                         break;
                     }

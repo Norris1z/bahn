@@ -14,7 +14,7 @@ pub enum ResponseType {
 
 pub struct Response {
     code: ResponseCode,
-    message: ResponseMessage,
+    pub message: ResponseMessage,
     response_type: ResponseType,
 }
 

@@ -12,6 +12,7 @@ pub mod user;
 pub mod rtype;
 pub mod pasv;
 pub mod nlst;
+pub mod list;
 
 pub trait CommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection;
