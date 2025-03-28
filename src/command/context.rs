@@ -139,4 +139,12 @@ impl<'a> CommandContext<'a> {
             .as_ref()
             .unwrap().borrow().list_directory_detailed_content_information(path)
     }
+
+    pub fn delete_directory(&self, path: &str) -> bool {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap().borrow().delete_directory(path)
+    }
 }

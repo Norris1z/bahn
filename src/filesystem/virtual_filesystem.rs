@@ -41,7 +41,13 @@ impl VirtualFilesystem {
     }
 
     fn canonicalize_path(&self, path: &str) -> PathBuf {
-        let mut path_buffer = PathBuf::from(self.current_directory.as_str());
+        let main_separator_str = MAIN_SEPARATOR.to_string();
+
+        let mut path_buffer = PathBuf::from(if path.starts_with(MAIN_SEPARATOR) {
+            main_separator_str.as_str()
+        } else {
+            self.current_directory.as_str()
+        });
 
         if !path.is_empty() {
             for component in PathBuf::from(path).components() {
@@ -57,6 +63,7 @@ impl VirtualFilesystem {
 
         path_buffer
     }
+
     fn get_relative_path(&self, path: &str) -> PathBuf {
         let mut path_buffer = PathBuf::from(self.mount_point.as_str());
         path_buffer.push(self.home_directory.as_str());
@@ -129,6 +136,12 @@ impl VirtualFilesystem {
         content
     }
 
+    pub fn delete_directory(&self, path: &str) -> bool {
+        let path = self.get_relative_path(path.as_ref());
+
+        fs::remove_dir_all(path).is_ok()
+    }
+
     //TODO: figure out how to handle owner and group
     fn parse_file_metadata(&self, filename: &str, metadata: Metadata) -> String {
         let last_modified: DateTime<Local> = metadata.modified().unwrap().into();
@@ -148,7 +161,7 @@ impl VirtualFilesystem {
         )
     }
 
-    /// This function formats the file permissions based on the raw `mode` value.
+    /// This method formats the file permissions based on the raw `mode` value.
     /// The `mode` represents the file mode, which includes both the **file type** and the **permissions**.
     ///
     /// The file mode is a 16-bit value (or larger, depending on the system) that combines the file type information

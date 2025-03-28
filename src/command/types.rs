@@ -9,6 +9,7 @@ use crate::command::handler::pass::PassCommandHandler;
 use crate::command::handler::pasv::PasvHandler;
 use crate::command::handler::pwd::PwdCommandHandler;
 use crate::command::handler::quit::QuitCommandHandler;
+use crate::command::handler::rmd::RmdCommandHandler;
 use crate::command::handler::rtype::TypeCommandHandler;
 use crate::command::handler::user::UserCommandHandler;
 use std::borrow::Cow;
@@ -28,6 +29,7 @@ pub enum CommandType<'a> {
     Pasv,
     Nlst(CommandArgument<'a>),
     List(CommandArgument<'a>),
+    Rmd(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -63,6 +65,9 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("list") => Some(CommandType::List(
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("rmd") => Some(CommandType::Rmd(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -73,7 +78,8 @@ impl<'a> CommandType<'a> {
             | CommandType::Pass(argument)
             | CommandType::Mkd(argument)
             | CommandType::Cwd(argument)
-            | CommandType::Type(argument, _) => argument.is_none(),
+            | CommandType::Type(argument, _)
+            | CommandType::Rmd(argument) => argument.is_none(),
             _ => false,
         }
     }
@@ -108,6 +114,7 @@ impl<'a> CommandType<'a> {
             CommandType::Pasv => Box::new(PasvHandler {}),
             CommandType::Nlst(path) => Box::new(NlstCommandHandler::new(path)),
             CommandType::List(path) => Box::new(ListCommandHandler::new(path)),
+            CommandType::Rmd(path) => Box::new(RmdCommandHandler::new(path)),
         }
     }
 }
