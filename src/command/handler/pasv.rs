@@ -8,6 +8,15 @@ pub struct PasvHandler {}
 
 impl CommandHandler for PasvHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
+        //TODO: (quickfix) sadly the RFC says nothing about the port flooding DDOS here.
+        if context.has_data_connection() {
+            return vec![Response::new(
+                ResponseCode::BadSequence,
+                ResponseMessage::Custom("Connection already open"),
+                ResponseType::Complete,
+            )];
+        }
+
         let address = context.create_data_connection();
 
         if address.is_none() {

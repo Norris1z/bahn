@@ -9,6 +9,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [x] Initial implementation of RFC 959 commands
 - [ ] Add debug statements for data connections (generally improve logging)
 - [ ] File transfers (upload/download)
+- [ ] Have another receiver in the session to signal data sent
 - [ ] Use timeouts for the connections
 - [ ] Create types for Data Transfer using the data connection, for now Response::CustomString
 - [ ] Add more test cases

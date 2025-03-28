@@ -1,6 +1,6 @@
 use crate::response::ResponseCollection;
 use std::io::Write;
-use std::net::{SocketAddr, TcpListener};
+use std::net::{Shutdown, SocketAddr, TcpListener};
 use std::sync::mpsc::Receiver;
 
 pub struct DataConnection {
@@ -37,18 +37,18 @@ impl DataConnection {
     pub fn handle_client_connection(&self, receiver: Receiver<ResponseCollection>) {
         for stream in self.connection.as_ref().unwrap().incoming() {
             match stream {
-                Ok(_) => {
+                Ok(mut stream) => {
                     let message = receiver.recv();
                     if message.is_ok() {
                         let response = message.unwrap();
                         for response in response {
                             stream
-                                .as_ref()
-                                .unwrap()
                                 .write_all(response.message.get_message().to_string().as_bytes())
                                 .unwrap_or(()) //not sure how to handle errors in this case
                         }
                     }
+
+                    stream.shutdown(Shutdown::Both).unwrap_or(());
 
                     break;
                 }

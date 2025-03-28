@@ -152,7 +152,7 @@ impl VirtualFilesystem {
         };
 
         format!(
-            "{} {} bahn bahn{:<15} {} {}",
+            "{} {} bahn bahn {:12} {} {}",
             self.format_permissions(metadata.permissions().mode()),
             metadata.nlink(),
             metadata.len(),
