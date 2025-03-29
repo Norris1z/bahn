@@ -2,7 +2,7 @@ use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::constants::{ASCII_CODE, IMAGE_CODE, NON_PRINT};
-use crate::filesystem::file::representation_type::RepresentationType;
+use crate::filesystem::RepresentationType;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};

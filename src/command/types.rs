@@ -1,17 +1,8 @@
-use crate::command::handler::CommandHandler;
-use crate::command::handler::cdup::CdupCommandHandler;
-use crate::command::handler::cwd::CwdCommandHandler;
-use crate::command::handler::help::HelpCommandHandler;
-use crate::command::handler::list::ListCommandHandler;
-use crate::command::handler::mkd::MkdCommandHandler;
-use crate::command::handler::nlst::NlstCommandHandler;
-use crate::command::handler::pass::PassCommandHandler;
-use crate::command::handler::pasv::PasvHandler;
-use crate::command::handler::pwd::PwdCommandHandler;
-use crate::command::handler::quit::QuitCommandHandler;
-use crate::command::handler::rmd::RmdCommandHandler;
-use crate::command::handler::rtype::TypeCommandHandler;
-use crate::command::handler::user::UserCommandHandler;
+use crate::command::handler::{
+    CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler,
+    MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PwdCommandHandler,
+    QuitCommandHandler, RmdCommandHandler, TypeCommandHandler, UserCommandHandler,
+};
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -65,9 +56,9 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("list") => Some(CommandType::List(
                 command_iterator.next().map(Cow::Borrowed),
             )),
-            _ if command.eq_ignore_ascii_case("rmd") => Some(CommandType::Rmd(
-                command_iterator.next().map(Cow::Borrowed),
-            )),
+            _ if command.eq_ignore_ascii_case("rmd") => {
+                Some(CommandType::Rmd(command_iterator.next().map(Cow::Borrowed)))
+            }
             _ => None,
         }
     }

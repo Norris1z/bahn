@@ -1,7 +1,7 @@
-use crate::connection::communication_channel::CommunicationChannel;
-use crate::connection::data_connection::DataConnection;
-use crate::connection::data_transfer_status::DataTransferStatus;
-use crate::filesystem::file::representation_type::RepresentationType;
+use crate::connection::CommunicationChannel;
+use crate::connection::DataConnection;
+use crate::connection::DataTransferStatus;
+use crate::filesystem::RepresentationType;
 use crate::response::ResponseCollection;
 use crate::session::user::User;
 use std::borrow::Cow;

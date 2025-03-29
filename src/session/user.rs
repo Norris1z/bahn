@@ -1,4 +1,4 @@
-use crate::filesystem::filesystem::VirtualFilesystem;
+use crate::filesystem::VirtualFilesystem;
 use std::cell::RefCell;
 
 pub struct User {

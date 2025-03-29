@@ -1,8 +1,8 @@
 use crate::command::Command;
 use crate::command::context::CommandContext;
 use crate::command::types::CommandType;
-use crate::connection::communication_channel::CommunicationChannel;
-use crate::connection::data_transfer_status::DataTransferStatus;
+use crate::connection::CommunicationChannel;
+use crate::connection::DataTransferStatus;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
