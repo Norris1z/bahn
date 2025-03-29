@@ -1,11 +1,12 @@
 use crate::command::Command;
 use crate::command::context::CommandContext;
 use crate::command::types::CommandType;
+use crate::connection::communication_channel::CommunicationChannel;
+use crate::connection::data_transfer_status::DataTransferStatus;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 use std::cell::{Cell, RefCell};
-use std::sync::mpsc::Sender;
 use tokio::net::tcp::OwnedWriteHalf;
 use user::User;
 
@@ -15,7 +16,7 @@ pub struct Session {
     user: RefCell<User>,
     socket_writer: OwnedWriteHalf,
     data_connection_created: Cell<bool>,
-    communication_channel: RefCell<Option<Sender<ResponseCollection>>>,
+    communication_channel: RefCell<CommunicationChannel<ResponseCollection, DataTransferStatus>>,
 }
 
 impl Session {
@@ -24,7 +25,7 @@ impl Session {
             user: RefCell::new(User::new()),
             socket_writer,
             data_connection_created: Cell::new(false),
-            communication_channel: RefCell::new(None),
+            communication_channel: RefCell::new(CommunicationChannel::new(None, None)),
         }
     }
 
@@ -81,28 +82,49 @@ impl Session {
             ResponseType::Complete,
         )]);
 
-        let response = vec![match self
+        let failed_response = vec![Response::new(
+            ResponseCode::ConnectionClosedTransferAborted,
+            ResponseMessage::Custom("Transfer aborted and connection closed"),
+            ResponseType::Complete,
+        )];
+
+        if self
             .communication_channel
             .borrow()
+            .sender
             .as_ref()
             .unwrap()
             .send(responses)
+            .is_err()
         {
-            Ok(_) => Response::new(
-                ResponseCode::ClosingDataConnection,
-                ResponseMessage::Custom("Operation successful"),
-                ResponseType::Complete,
-            ),
-            Err(_) => Response::new(
-                ResponseCode::ConnectionClosedTransferAborted,
-                ResponseMessage::Custom("Transfer aborted and connection closed"),
-                ResponseType::Complete,
-            ),
-        }];
+            return self.send_response(failed_response);
+        }
 
+        let status = self
+            .communication_channel
+            .borrow()
+            .receiver
+            .as_ref()
+            .unwrap()
+            .recv();
+
+        if status.is_err() || status.unwrap() == DataTransferStatus::Failed {
+            return self.send_response(failed_response);
+        }
+
+        self.cleanup_data_connection();
+
+        self.send_response(vec![Response::new(
+            ResponseCode::ClosingDataConnection,
+            ResponseMessage::Custom("Operation successful"),
+            ResponseType::Complete,
+        )])
+    }
+
+    fn cleanup_data_connection(&mut self) {
         self.data_connection_created.replace(false);
-
-        self.send_response(response)
+        let mut channel = self.communication_channel.borrow_mut();
+        *channel = CommunicationChannel::new(None, None);
     }
 
     pub fn init(&mut self) {

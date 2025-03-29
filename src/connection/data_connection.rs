@@ -1,7 +1,8 @@
+use crate::connection::communication_channel::CommunicationChannel;
+use crate::connection::data_transfer_status::DataTransferStatus;
 use crate::response::ResponseCollection;
 use std::io::Write;
 use std::net::{Shutdown, SocketAddr, TcpListener};
-use std::sync::mpsc::Receiver;
 
 pub struct DataConnection {
     pub connection: Option<TcpListener>,
@@ -34,19 +35,34 @@ impl DataConnection {
         None
     }
 
-    pub fn handle_client_connection(&self, receiver: Receiver<ResponseCollection>) {
+    pub fn handle_client_connection(
+        &self,
+        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
+    ) {
         for stream in self.connection.as_ref().unwrap().incoming() {
             match stream {
                 Ok(mut stream) => {
-                    let message = receiver.recv();
+                    let mut transfer_status = DataTransferStatus::Success;
+                    let message = communication_channel.receiver.as_ref().unwrap().recv();
                     if message.is_ok() {
                         let response = message.unwrap();
                         for response in response {
-                            stream
+                            if stream
                                 .write_all(response.message.get_message().to_string().as_bytes())
-                                .unwrap_or(()) //not sure how to handle errors in this case
+                                .is_err()
+                            {
+                                transfer_status = DataTransferStatus::Failed;
+                                break;
+                            }
                         }
                     }
+
+                    communication_channel
+                        .sender
+                        .as_ref()
+                        .unwrap()
+                        .send(transfer_status)
+                        .unwrap_or(());
 
                     stream.shutdown(Shutdown::Both).unwrap_or(());
 

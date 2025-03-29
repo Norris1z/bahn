@@ -1,23 +1,27 @@
-use std::borrow::Cow;
+use crate::connection::communication_channel::CommunicationChannel;
 use crate::connection::data_connection::DataConnection;
+use crate::connection::data_transfer_status::DataTransferStatus;
 use crate::filesystem::file::representation_type::RepresentationType;
 use crate::response::ResponseCollection;
 use crate::session::user::User;
+use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
 use std::sync::mpsc;
-use std::sync::mpsc::Sender;
 
 pub struct CommandContext<'a> {
     user: &'a RefCell<User>,
     data_connection_created: &'a Cell<bool>,
-    communication_channel: &'a RefCell<Option<Sender<ResponseCollection>>>,
+    communication_channel:
+        &'a RefCell<CommunicationChannel<ResponseCollection, DataTransferStatus>>,
 }
 
 impl<'a> CommandContext<'a> {
     pub fn new(
         user: &'a RefCell<User>,
         data_connection_created: &'a Cell<bool>,
-        communication_channel: &'a RefCell<Option<Sender<ResponseCollection>>>,
+        communication_channel: &'a RefCell<
+            CommunicationChannel<ResponseCollection, DataTransferStatus>,
+        >,
     ) -> Self {
         Self {
             user,
@@ -106,11 +110,15 @@ impl<'a> CommandContext<'a> {
 
         println!("{:?}", address);
 
-        let (sender, receiver) = mpsc::channel();
+        let (session_sender, data_receiver) = mpsc::channel();
+        let (data_sender, session_receiver) = mpsc::channel();
 
-        self.communication_channel.borrow_mut().replace(sender);
+        let mut session_channel = self.communication_channel.borrow_mut();
+        *session_channel = CommunicationChannel::new(Some(session_sender), Some(session_receiver));
 
-        std::thread::spawn(move || connection.handle_client_connection(receiver));
+        let data_channel = CommunicationChannel::new(Some(data_sender), Some(data_receiver));
+
+        std::thread::spawn(move || connection.handle_client_connection(data_channel));
 
         self.data_connection_created.replace(true);
 
@@ -129,7 +137,9 @@ impl<'a> CommandContext<'a> {
             .borrow()
             .filesystem
             .as_ref()
-            .unwrap().borrow().list_directory_content_names(path)
+            .unwrap()
+            .borrow()
+            .list_directory_content_names(path)
     }
 
     pub fn list_directory_detailed_content_information(&self, path: &Cow<str>) -> Vec<String> {
@@ -137,7 +147,9 @@ impl<'a> CommandContext<'a> {
             .borrow()
             .filesystem
             .as_ref()
-            .unwrap().borrow().list_directory_detailed_content_information(path)
+            .unwrap()
+            .borrow()
+            .list_directory_detailed_content_information(path)
     }
 
     pub fn delete_directory(&self, path: &str) -> bool {
@@ -145,6 +157,8 @@ impl<'a> CommandContext<'a> {
             .borrow()
             .filesystem
             .as_ref()
-            .unwrap().borrow().delete_directory(path)
+            .unwrap()
+            .borrow()
+            .delete_directory(path)
     }
 }
