@@ -12,4 +12,9 @@ pub enum ResponseCode {
     DirectoryName = 257,
     RequestedActionNotTaken = 550,
     FileActionOkay = 250,
+    CantOpenDataConnection = 425,
+    EnteringPassiveMode = 227,
+    StartingDataTransfer = 150,
+    ClosingDataConnection = 226,
+    ConnectionClosedTransferAborted = 426,
 }
