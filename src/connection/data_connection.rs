@@ -1,6 +1,7 @@
 use crate::connection::communication_channel::CommunicationChannel;
 use crate::connection::data_transfer_status::DataTransferStatus;
 use crate::response::ResponseCollection;
+use crate::response::data::DataTransferType;
 use std::io::Write;
 use std::net::{Shutdown, SocketAddr, TcpListener};
 
@@ -46,13 +47,18 @@ impl DataConnection {
                     let message = communication_channel.receiver.as_ref().unwrap().recv();
                     if message.is_ok() {
                         let response = message.unwrap();
-                        for response in response {
-                            if stream
-                                .write_all(response.message.get_message().to_string().as_bytes())
-                                .is_err()
-                            {
-                                transfer_status = DataTransferStatus::Failed;
-                                break;
+                        'response_loop: for response in response {
+                            if response.data.is_some() {
+                                let data = response.data.unwrap();
+                                if data.transfer_type == DataTransferType::Outgoing {
+                                    for content in data.content {
+                                        let content = content + "\r\n";
+                                        if stream.write(content.as_bytes()).is_err() {
+                                            transfer_status = DataTransferStatus::Failed;
+                                            break 'response_loop;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
