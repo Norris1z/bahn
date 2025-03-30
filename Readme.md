@@ -7,17 +7,15 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [x] Basic FTP server functionality
 - [x] Authentication support
 - [x] Initial implementation of RFC 959 commands
+- [x] Create types for Data Transfer using the data connection, for now Response::CustomString
+- [ ] Close existing PASV connection if client sends multiple PASSV to prevent Port DDOS
+- [ ] Implement transmission modes according to RFC (Block, Compressed etc)
 - [ ] Add debug statements for data connections (generally improve logging)
 - [ ] File transfers (upload/download)
 - [ ] Have another receiver in the session to signal data sent
 - [ ] Use timeouts for the connections
-- [ ] Create types for Data Transfer using the data connection, for now Response::CustomString
 - [ ] Add more test cases
 
-## Planned Features
-
-- Support for more FTP commands (LIST, DELE, MKD, etc.)
-- Virtual File System (VFS) for abstraction
 
 ## Getting Started
 
