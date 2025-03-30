@@ -1,7 +1,9 @@
 pub mod codes;
+pub mod data;
 pub mod messages;
 
 use crate::response::codes::ResponseCode;
+use crate::response::data::ResponseData;
 use crate::response::messages::ResponseMessage;
 
 pub type ResponseCollection = Vec<Response>;
@@ -10,12 +12,14 @@ pub enum ResponseType {
     Partial,
     Complete,
     Terminate,
+    DataTransfer,
 }
 
 pub struct Response {
     code: ResponseCode,
-    message: ResponseMessage,
+    pub message: ResponseMessage,
     response_type: ResponseType,
+    pub data: Option<ResponseData>,
 }
 
 impl Response {
@@ -24,6 +28,7 @@ impl Response {
             code,
             message,
             response_type,
+            data: None,
         }
     }
 
@@ -33,6 +38,10 @@ impl Response {
 
     pub fn is_partial(&self) -> bool {
         matches!(self.response_type, ResponseType::Partial)
+    }
+
+    pub fn set_data(&mut self, data: ResponseData) {
+        self.data = Some(data);
     }
 }
 
