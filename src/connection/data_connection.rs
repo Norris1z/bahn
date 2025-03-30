@@ -1,9 +1,11 @@
 use crate::connection::communication_channel::CommunicationChannel;
 use crate::connection::data_transfer_status::DataTransferStatus;
+use crate::filesystem::VirtualFilesystem;
 use crate::response::ResponseCollection;
 use crate::response::data::DataTransferType;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::net::{Shutdown, SocketAddr, TcpListener};
+use crate::constants::DATA_CONNECTION_READ_BUFFER;
 
 pub struct DataConnection {
     pub connection: Option<TcpListener>,
@@ -50,12 +52,47 @@ impl DataConnection {
                         'response_loop: for response in response {
                             if response.data.is_some() {
                                 let data = response.data.unwrap();
-                                if data.transfer_type == DataTransferType::Outgoing {
-                                    for content in data.content {
-                                        let content = content + "\r\n";
-                                        if stream.write(content.as_bytes()).is_err() {
+
+                                match data.transfer_type {
+                                    DataTransferType::Outgoing => {
+                                        for content in data.content {
+                                            let content = content + "\r\n";
+                                            if stream.write(content.as_bytes()).is_err() {
+                                                transfer_status = DataTransferStatus::Failed;
+                                                break 'response_loop;
+                                            }
+                                        }
+                                    }
+                                    DataTransferType::Incoming => {
+                                        let mut buffer = [0; DATA_CONNECTION_READ_BUFFER];
+
+                                        //TODO: refactor (currently the filename is assumed to be the first item in the vec.)
+                                        let filename = data.content.first().unwrap();
+                                        let writable_file =
+                                            VirtualFilesystem::create_writable_file(filename);
+
+                                        if writable_file.is_err() {
                                             transfer_status = DataTransferStatus::Failed;
                                             break 'response_loop;
+                                        }
+
+                                        let mut writable_file = writable_file.unwrap();
+
+                                        loop {
+                                            match stream.read(&mut buffer) {
+                                                Ok(0) => break 'response_loop,
+                                                Ok(bytes_read) => {
+                                                    if writable_file
+                                                        .write_all(buffer[0..bytes_read].as_ref())
+                                                        .is_err()
+                                                    {
+                                                        transfer_status =
+                                                            DataTransferStatus::Failed;
+                                                        break 'response_loop;
+                                                    }
+                                                }
+                                                Err(_) => break 'response_loop,
+                                            }
                                         }
                                     }
                                 }

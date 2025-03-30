@@ -7,7 +7,7 @@ use crate::filesystem::file::representation_type::RepresentationType;
 use chrono::{DateTime, Duration, Local};
 use std::borrow::Cow;
 use std::fs;
-use std::fs::Metadata;
+use std::fs::{File, Metadata};
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::path::{Component, MAIN_SEPARATOR, PathBuf};
 
@@ -64,7 +64,7 @@ impl VirtualFilesystem {
         path_buffer
     }
 
-    fn get_relative_path(&self, path: &str) -> PathBuf {
+    pub fn get_relative_path(&self, path: &str) -> PathBuf {
         let mut path_buffer = PathBuf::from(self.mount_point.as_str());
         path_buffer.push(self.home_directory.as_str());
 
@@ -224,5 +224,13 @@ impl VirtualFilesystem {
                 '-'
             },
         )
+    }
+
+    pub fn create_writable_file(path: &str) -> std::io::Result<File> {
+        fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(path)
     }
 }

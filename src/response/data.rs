@@ -3,16 +3,6 @@ pub enum DataTransferType {
     Outgoing,
 }
 
-impl PartialEq for DataTransferType {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (DataTransferType::Incoming, DataTransferType::Incoming) => true,
-            (DataTransferType::Outgoing, DataTransferType::Outgoing) => true,
-            _ => false,
-        }
-    }
-}
-
 pub struct ResponseData {
     pub transfer_type: DataTransferType,
     pub content: Vec<String>,

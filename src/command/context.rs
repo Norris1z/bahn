@@ -161,4 +161,17 @@ impl<'a> CommandContext<'a> {
             .borrow()
             .delete_directory(path)
     }
+
+    pub fn get_relative_path(&self, path: &str) -> String {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .get_relative_path(path)
+            .to_str()
+            .unwrap()
+            .to_string()
+    }
 }

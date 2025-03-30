@@ -57,6 +57,7 @@ impl Session {
 
     fn send_response(&mut self, responses: ResponseCollection) -> bool {
         responses.iter().for_each(|response| {
+            println!("Sending response: {:?}", response.to_string());
             self.socket_writer
                 .try_write(response.to_string().as_bytes())
                 .unwrap();

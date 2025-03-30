@@ -19,7 +19,7 @@ pub struct Response {
     code: ResponseCode,
     pub message: ResponseMessage,
     response_type: ResponseType,
-    data: Option<ResponseData>,
+    pub data: Option<ResponseData>,
 }
 
 impl Response {

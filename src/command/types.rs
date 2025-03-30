@@ -1,8 +1,4 @@
-use crate::command::handler::{
-    CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler,
-    MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PwdCommandHandler,
-    QuitCommandHandler, RmdCommandHandler, TypeCommandHandler, UserCommandHandler,
-};
+use crate::command::handler::{CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PwdCommandHandler, QuitCommandHandler, RmdCommandHandler, StorCommandHandler, TypeCommandHandler, UserCommandHandler};
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -21,6 +17,7 @@ pub enum CommandType<'a> {
     Nlst(CommandArgument<'a>),
     List(CommandArgument<'a>),
     Rmd(CommandArgument<'a>),
+    Stor(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -59,6 +56,9 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("rmd") => {
                 Some(CommandType::Rmd(command_iterator.next().map(Cow::Borrowed)))
             }
+            _ if command.eq_ignore_ascii_case("stor") => {
+                Some(CommandType::Stor(command_iterator.next().map(Cow::Borrowed)))
+            }
             _ => None,
         }
     }
@@ -86,7 +86,7 @@ impl<'a> CommandType<'a> {
 
     pub fn should_send_via_data_connection(&self) -> bool {
         match self {
-            CommandType::Nlst(_) | CommandType::List(_) => true,
+            CommandType::Nlst(_) | CommandType::List(_) | CommandType::Stor(_) => true,
             _ => false,
         }
     }
@@ -106,6 +106,7 @@ impl<'a> CommandType<'a> {
             CommandType::Nlst(path) => Box::new(NlstCommandHandler::new(path)),
             CommandType::List(path) => Box::new(ListCommandHandler::new(path)),
             CommandType::Rmd(path) => Box::new(RmdCommandHandler::new(path)),
+            CommandType::Stor(file) => Box::new(StorCommandHandler::new(file)),
         }
     }
 }
