@@ -108,8 +108,6 @@ impl<'a> CommandContext<'a> {
 
         let address = connection.get_address();
 
-        println!("{:?}", address);
-
         let (session_sender, data_receiver) = mpsc::channel();
         let (data_sender, session_receiver) = mpsc::channel();
 
