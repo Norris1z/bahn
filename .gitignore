@@ -2,3 +2,4 @@
 .idea
 .env
 /mount
+.DS_Store

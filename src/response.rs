@@ -5,6 +5,7 @@ pub mod messages;
 use crate::response::codes::ResponseCode;
 use crate::response::data::ResponseData;
 use crate::response::messages::ResponseMessage;
+use std::fmt::{Display, Formatter};
 
 pub type ResponseCollection = Vec<Response>;
 
@@ -45,9 +46,10 @@ impl Response {
     }
 }
 
-impl ToString for Response {
-    fn to_string(&self) -> String {
-        format!(
+impl Display for Response {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}{}{}\r\n",
             self.code as u16,
             if self.is_partial() { "-" } else { " " },
