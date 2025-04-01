@@ -2,7 +2,8 @@ use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
-use crate::response::data::{DataTransferType, ResponseData};
+use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
+use crate::response::file::FileResponse;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 
@@ -30,7 +31,9 @@ impl<'a> CommandHandler for StorCommandHandler<'a> {
 
         response.set_data(ResponseData::new(
             DataTransferType::Incoming,
-            vec![context.get_relative_path(self.file.as_ref().unwrap())],
+            ResponseDataContentType::File(FileResponse::new(
+                context.get_relative_path(self.file.as_ref().unwrap()),
+            )),
         ));
 
         vec![response]

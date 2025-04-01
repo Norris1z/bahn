@@ -2,7 +2,7 @@ use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
 use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
-use crate::response::data::{DataTransferType, ResponseData};
+use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 use std::borrow::Cow;
@@ -33,7 +33,10 @@ impl<'a> CommandHandler for NlstCommandHandler<'a> {
             ResponseType::Complete,
         );
 
-        response.set_data(ResponseData::new(DataTransferType::Outgoing, content));
+        response.set_data(ResponseData::new(
+            DataTransferType::Outgoing,
+            ResponseDataContentType::FileInfoList(content),
+        ));
 
         vec![response]
     }

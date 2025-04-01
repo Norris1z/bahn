@@ -1,3 +1,5 @@
+use crate::response::file::FileResponse;
+
 pub enum DataTransferType {
     Incoming,
     Outgoing,
@@ -5,11 +7,16 @@ pub enum DataTransferType {
 
 pub struct ResponseData {
     pub transfer_type: DataTransferType,
-    pub content: Vec<String>,
+    pub content: ResponseDataContentType,
+}
+
+pub enum ResponseDataContentType {
+    FileInfoList(Vec<String>),
+    File(FileResponse),
 }
 
 impl ResponseData {
-    pub fn new(transfer_type: DataTransferType, content: Vec<String>) -> Self {
+    pub fn new(transfer_type: DataTransferType, content: ResponseDataContentType) -> Self {
         Self {
             transfer_type,
             content,

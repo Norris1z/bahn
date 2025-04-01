@@ -1,6 +1,7 @@
 pub mod codes;
 pub mod data;
 pub mod messages;
+pub mod file;
 
 use crate::response::codes::ResponseCode;
 use crate::response::data::ResponseData;
