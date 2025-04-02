@@ -54,7 +54,32 @@ impl DataConnection {
 
                 None
             }
-            _ => None,
+            ResponseDataContentType::File(file) => {
+                if let Some(mut file_buffer) =
+                    VirtualFilesystem::open_file_in_buffered_mode(&file.filename)
+                {
+                    let mut buffer = [0; DATA_CONNECTION_READ_BUFFER];
+                    let mut write_status = None;
+                    'write_loop: loop {
+                        match file_buffer.read(&mut buffer) {
+                            Ok(0) => break 'write_loop,
+                            Ok(bytes_read) => {
+                                if stream.write(&buffer[0..bytes_read]).is_err() {
+                                    write_status = Some(DataTransferStatus::Failed);
+                                    break 'write_loop;
+                                }
+                            }
+                            Err(_) => {
+                                write_status = Some(DataTransferStatus::Failed);
+                                break 'write_loop;
+                            }
+                        };
+                    }
+
+                    return write_status;
+                }
+                Some(DataTransferStatus::Failed)
+            }
         }
     }
 
@@ -80,10 +105,7 @@ impl DataConnection {
                     match stream.read(&mut buffer) {
                         Ok(0) | Err(_) => break 'read_loop,
                         Ok(bytes_read) => {
-                            if writable_file
-                                .write_all(buffer[0..bytes_read].as_ref())
-                                .is_err()
-                            {
+                            if writable_file.write_all(&buffer[0..bytes_read]).is_err() {
                                 read_result = Some(DataTransferStatus::Failed);
                                 break 'read_loop;
                             }

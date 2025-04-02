@@ -18,7 +18,7 @@ impl<'a> CommandHandler for MkdCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         let path = self.path.as_deref().unwrap();
 
-        if context.directory_exists(path) {
+        if context.file_or_directory_exists(path) {
             return vec![Response::new(
                 ResponseCode::RequestedActionNotTaken,
                 ResponseMessage::Custom("File or directory already exists"),

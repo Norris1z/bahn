@@ -15,6 +15,7 @@ mod rmd;
 mod rtype;
 mod user;
 mod stor;
+mod retr;
 
 pub use crate::command::handler::cdup::*;
 pub use crate::command::handler::cwd::*;
@@ -30,6 +31,7 @@ pub use crate::command::handler::rmd::*;
 pub use crate::command::handler::rtype::*;
 pub use crate::command::handler::user::*;
 pub use crate::command::handler::stor::*;
+pub use crate::command::handler::retr::*;
 
 pub trait CommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection;

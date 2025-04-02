@@ -27,17 +27,14 @@ impl<'a> CommandHandler for ListCommandHandler<'a> {
             self.path.as_ref().unwrap_or_else(|| &Cow::Borrowed(".")),
         );
 
-        let mut response = Response::new(
+        vec![Response::with_data(
             ResponseCode::Success,
             ResponseMessage::SendingDataToDataConnection,
             ResponseType::DataTransfer,
-        );
-
-        response.set_data(ResponseData::new(
-            DataTransferType::Outgoing,
-            ResponseDataContentType::FileInfoList(content),
-        ));
-
-        vec![response]
+            ResponseData::new(
+                DataTransferType::Outgoing,
+                ResponseDataContentType::FileInfoList(content),
+            ),
+        )]
     }
 }

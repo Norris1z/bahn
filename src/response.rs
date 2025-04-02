@@ -1,7 +1,7 @@
 pub mod codes;
 pub mod data;
-pub mod messages;
 pub mod file;
+pub mod messages;
 
 use crate::response::codes::ResponseCode;
 use crate::response::data::ResponseData;
@@ -15,6 +15,18 @@ pub enum ResponseType {
     Complete,
     Terminate,
     DataTransfer,
+}
+
+impl PartialEq for ResponseType {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ResponseType::Partial, ResponseType::Partial) => true,
+            (ResponseType::Complete, ResponseType::Complete) => true,
+            (ResponseType::Terminate, ResponseType::Terminate) => true,
+            (ResponseType::DataTransfer, ResponseType::DataTransfer) => true,
+            _ => false,
+        }
+    }
 }
 
 pub struct Response {
@@ -34,16 +46,26 @@ impl Response {
         }
     }
 
+    pub fn with_data(
+        code: ResponseCode,
+        message: ResponseMessage,
+        response_type: ResponseType,
+        data: ResponseData,
+    ) -> Self {
+        Self {
+            code,
+            message,
+            response_type,
+            data: Some(data),
+        }
+    }
+
     pub fn is_terminate(&self) -> bool {
-        matches!(self.response_type, ResponseType::Terminate)
+        self.response_type == ResponseType::Terminate
     }
 
     pub fn is_partial(&self) -> bool {
-        matches!(self.response_type, ResponseType::Partial)
-    }
-
-    pub fn set_data(&mut self, data: ResponseData) {
-        self.data = Some(data);
+        self.response_type == ResponseType::Partial
     }
 }
 

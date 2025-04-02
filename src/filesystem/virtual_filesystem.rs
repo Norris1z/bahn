@@ -8,6 +8,7 @@ use chrono::{DateTime, Duration, Local};
 use std::borrow::Cow;
 use std::fs;
 use std::fs::{File, Metadata};
+use std::io::BufReader;
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::path::{Component, MAIN_SEPARATOR, PathBuf};
 
@@ -232,5 +233,13 @@ impl VirtualFilesystem {
             .write(true)
             .truncate(true)
             .open(path)
+    }
+
+    pub fn open_file_in_buffered_mode(file: &str) -> Option<BufReader<File>> {
+        if let Ok(file) = File::open(file) {
+            return Some(BufReader::new(file));
+        }
+
+        None
     }
 }

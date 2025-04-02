@@ -59,7 +59,7 @@ impl<'a> CommandContext<'a> {
             .get_current_directory()
     }
 
-    pub fn directory_exists(&self, path: &str) -> bool {
+    pub fn file_or_directory_exists(&self, path: &str) -> bool {
         self.user
             .borrow()
             .filesystem
