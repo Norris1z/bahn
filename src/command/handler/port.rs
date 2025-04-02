@@ -1,25 +1,33 @@
 use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
+use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 
-pub struct PasvHandler {}
+pub struct PortCommandHandler<'a> {
+    address: &'a CommandArgument<'a>,
+}
 
-impl CommandHandler for PasvHandler {
+impl<'a> PortCommandHandler<'a> {
+    pub fn new(address: &'a CommandArgument<'a>) -> Self {
+        Self { address }
+    }
+}
+
+impl<'a> CommandHandler for PortCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
-        //TODO: (quickfix) sadly the RFC says nothing about the port flooding DDOS here.
-        if context.has_data_connection() {
+        let address = context.construct_socket_addr(self.address.as_ref().unwrap());
+
+        if address.is_none() {
             return vec![Response::new(
-                ResponseCode::BadSequence,
-                ResponseMessage::Custom("Connection already open"),
+                ResponseCode::SyntaxErrorInParametersOrArguments,
+                ResponseMessage::Custom("Invalid address"),
                 ResponseType::Complete,
             )];
         }
 
-        let address = context.create_passive_data_connection();
-
-        if address.is_none() {
+        if !context.create_active_data_connection(address.unwrap()) {
             return vec![Response::new(
                 ResponseCode::CantOpenDataConnection,
                 ResponseMessage::CantOpenDataConnection,
@@ -28,8 +36,8 @@ impl CommandHandler for PasvHandler {
         }
 
         vec![Response::new(
-            ResponseCode::EnteringPassiveMode,
-            ResponseMessage::CustomString(format!("Entering Passive Mode ({})", address.unwrap())),
+            ResponseCode::Success,
+            ResponseMessage::Custom("PORT command successful"),
             ResponseType::Complete,
         )]
     }

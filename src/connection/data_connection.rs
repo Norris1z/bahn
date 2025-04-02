@@ -1,42 +1,18 @@
-use crate::connection::communication_channel::CommunicationChannel;
-use crate::connection::data_transfer_status::DataTransferStatus;
+use crate::connection::{CommunicationChannel, DataTransferStatus};
 use crate::constants::DATA_CONNECTION_READ_BUFFER;
 use crate::filesystem::VirtualFilesystem;
 use crate::response::ResponseCollection;
 use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
 use std::io::{Read, Write};
-use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
+use std::net::TcpStream;
 
-pub struct DataConnection {
-    pub connection: Option<TcpListener>,
-}
+pub trait DataConnection {
+    fn has_active_connection(&self) -> bool;
 
-impl DataConnection {
-    pub fn new() -> Self {
-        let listener = TcpListener::bind((
-            dotenv::var("SERVER_ADDRESS").expect("SERVER_ADDRESS not set"),
-            0,
-        ));
-
-        Self {
-            connection: match listener {
-                Ok(listener) => Some(listener),
-                Err(_) => None,
-            },
-        }
-    }
-
-    pub fn has_active_connection(&self) -> bool {
-        self.connection.is_some()
-    }
-
-    pub fn get_address(&self) -> Option<SocketAddr> {
-        if self.has_active_connection() {
-            return Some(self.connection.as_ref().unwrap().local_addr().unwrap());
-        }
-
-        None
-    }
+    fn handle_data_exchange(
+        &self,
+        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
+    );
 
     fn send_outgoing_data(
         &self,
@@ -155,26 +131,5 @@ impl DataConnection {
             .unwrap()
             .send(transfer_status)
             .unwrap_or(());
-    }
-
-    pub fn handle_client_connection(
-        &self,
-        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
-    ) {
-        for stream in self.connection.as_ref().unwrap().incoming() {
-            match stream {
-                Ok(mut stream) => {
-                    self.process_data_from_communication_channel(
-                        &mut stream,
-                        &communication_channel,
-                    );
-
-                    stream.shutdown(Shutdown::Both).unwrap_or(());
-
-                    break;
-                }
-                Err(_) => (),
-            }
-        }
     }
 }

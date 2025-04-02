@@ -12,7 +12,9 @@ impl CommandHandler for HelpCommandHandler {
             Response::new(
                 ResponseCode::Help,
                 ResponseMessage::Custom(
-                    "The following commands are supported. \r\n USER HELP PASS QUIT PWD MKD CWD CDUP",
+                    r#"The following commands are supported.
+ USER HELP PASS QUIT PWD MKD CWD CDUP LIST NLST
+ PASV PORT RMD RETR STOR TYPE"#,
                 ),
                 ResponseType::Partial,
             ),

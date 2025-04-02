@@ -1,11 +1,12 @@
-use crate::connection::CommunicationChannel;
-use crate::connection::DataConnection;
-use crate::connection::DataTransferStatus;
+use crate::connection::PassiveDataConnection;
+use crate::connection::{ActiveDataConnection, DataTransferStatus};
+use crate::connection::{CommunicationChannel, DataConnection};
 use crate::filesystem::RepresentationType;
 use crate::response::ResponseCollection;
 use crate::session::user::User;
 use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::mpsc;
 
 pub struct CommandContext<'a> {
@@ -99,24 +100,18 @@ impl<'a> CommandContext<'a> {
             .set_representation_type(representation_type)
     }
 
-    pub fn create_data_connection(&self) -> Option<String> {
-        let connection = DataConnection::new();
+    pub fn create_passive_data_connection(&self) -> Option<String> {
+        let connection = PassiveDataConnection::new();
 
-        if connection.connection.is_none() {
+        if !connection.has_active_connection() {
             return None;
         }
 
         let address = connection.get_address();
 
-        let (session_sender, data_receiver) = mpsc::channel();
-        let (data_sender, session_receiver) = mpsc::channel();
+        let data_communication_channel = self.create_data_communication_channels();
 
-        let mut session_channel = self.communication_channel.borrow_mut();
-        *session_channel = CommunicationChannel::new(Some(session_sender), Some(session_receiver));
-
-        let data_channel = CommunicationChannel::new(Some(data_sender), Some(data_receiver));
-
-        std::thread::spawn(move || connection.handle_client_connection(data_channel));
+        std::thread::spawn(move || connection.handle_data_exchange(data_communication_channel));
 
         self.data_connection_created.replace(true);
 
@@ -171,5 +166,54 @@ impl<'a> CommandContext<'a> {
             .to_str()
             .unwrap()
             .to_string()
+    }
+
+    pub fn construct_socket_addr(&self, address: &str) -> Option<SocketAddr> {
+        if let Some(segments) = address.split(",").collect::<Vec<&str>>().get(..6) {
+            if let (Some(h1), Some(h2), Some(h3), Some(h4), Some(p1), Some(p2)) = (
+                segments.get(0).and_then(|s| s.parse::<u8>().ok()),
+                segments.get(1).and_then(|s| s.parse::<u8>().ok()),
+                segments.get(2).and_then(|s| s.parse::<u8>().ok()),
+                segments.get(3).and_then(|s| s.parse::<u8>().ok()),
+                segments.get(4).and_then(|s| s.parse::<u8>().ok()),
+                segments.get(5).and_then(|s| s.parse::<u8>().ok()),
+            ) {
+                let port = p1 as u16 * 256 + p2 as u16;
+                return Some(SocketAddr::new(
+                    IpAddr::V4(Ipv4Addr::new(h1, h2, h3, h4)),
+                    port,
+                ));
+            }
+        }
+
+        None
+    }
+
+    fn create_data_communication_channels(
+        &self,
+    ) -> CommunicationChannel<DataTransferStatus, ResponseCollection> {
+        let (session_sender, data_receiver) = mpsc::channel();
+        let (data_sender, session_receiver) = mpsc::channel();
+
+        let mut session_channel = self.communication_channel.borrow_mut();
+        *session_channel = CommunicationChannel::new(Some(session_sender), Some(session_receiver));
+
+        CommunicationChannel::new(Some(data_sender), Some(data_receiver))
+    }
+
+    pub fn create_active_data_connection(&self, address: SocketAddr) -> bool {
+        let connection = ActiveDataConnection::new(address);
+
+        if !connection.has_active_connection() {
+            return false;
+        }
+
+        let data_communication_channel = self.create_data_communication_channels();
+
+        std::thread::spawn(move || connection.handle_data_exchange(data_communication_channel));
+
+        self.data_connection_created.replace(true);
+
+        true
     }
 }
