@@ -1,4 +1,10 @@
-use crate::command::handler::{CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler, NoopCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler, RetrCommandHandler, RmdCommandHandler, StorCommandHandler, SystCommandHandler, TypeCommandHandler, UserCommandHandler};
+use crate::command::handler::{
+    CdupCommandHandler, CommandHandler, CwdCommandHandler, DeleCommandHandler, HelpCommandHandler,
+    ListCommandHandler, MkdCommandHandler, NlstCommandHandler, NoopCommandHandler,
+    PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler,
+    RetrCommandHandler, RmdCommandHandler, StorCommandHandler, SystCommandHandler,
+    TypeCommandHandler, UserCommandHandler,
+};
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -22,6 +28,7 @@ pub enum CommandType<'a> {
     Port(CommandArgument<'a>),
     Noop,
     Syst,
+    Dele(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -71,6 +78,9 @@ impl<'a> CommandType<'a> {
             )),
             _ if command.eq_ignore_ascii_case("noop") => Some(CommandType::Noop),
             _ if command.eq_ignore_ascii_case("syst") => Some(CommandType::Syst),
+            _ if command.eq_ignore_ascii_case("dele") => Some(CommandType::Dele(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -85,7 +95,8 @@ impl<'a> CommandType<'a> {
             | CommandType::Rmd(argument)
             | CommandType::Stor(argument)
             | CommandType::Retr(argument)
-            | CommandType::Port(argument) => argument.is_none(),
+            | CommandType::Port(argument)
+            | CommandType::Dele(argument) => argument.is_none(),
             _ => false,
         }
     }
@@ -132,6 +143,7 @@ impl<'a> CommandType<'a> {
             CommandType::Port(address) => Box::new(PortCommandHandler::new(address)),
             CommandType::Noop => Box::new(NoopCommandHandler {}),
             CommandType::Syst => Box::new(SystCommandHandler {}),
+            CommandType::Dele(file) => Box::new(DeleCommandHandler::new(file)),
         }
     }
 }

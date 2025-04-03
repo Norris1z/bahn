@@ -21,7 +21,7 @@ impl<'a> CommandHandler for RetrCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
         let file = self.file.as_deref().unwrap();
 
-        if !context.file_or_directory_exists(file) {
+        if !context.file_exists(file) {
             return vec![Response::new(
                 ResponseCode::RequestedActionNotTaken,
                 ResponseMessage::Custom("File does not exist"),

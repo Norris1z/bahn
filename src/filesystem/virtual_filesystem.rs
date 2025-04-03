@@ -76,10 +76,16 @@ impl VirtualFilesystem {
         path_buffer
     }
 
-    pub fn exists(&self, path: &str) -> bool {
-        self.get_relative_path(path)
-            .try_exists()
-            .unwrap_or_else(|_| false)
+    pub fn directory_exists(&self, path: &str) -> bool {
+        let path = self.get_relative_path(path);
+
+        path.is_dir() && path.try_exists().unwrap_or_else(|_| false)
+    }
+
+    pub fn file_exists(&self, path: &str) -> bool {
+        let path = self.get_relative_path(path);
+
+        path.is_file() && path.try_exists().unwrap_or_else(|_| false)
     }
 
     pub fn create_directory(&self, path: &str) -> Option<String> {
@@ -241,5 +247,10 @@ impl VirtualFilesystem {
         }
 
         None
+    }
+
+    pub fn delete_file(&self, file: &str) -> bool {
+        let file = self.get_relative_path(file);
+        fs::remove_file(file).is_ok()
     }
 }

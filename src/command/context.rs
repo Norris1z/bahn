@@ -60,14 +60,24 @@ impl<'a> CommandContext<'a> {
             .get_current_directory()
     }
 
-    pub fn file_or_directory_exists(&self, path: &str) -> bool {
+    pub fn directory_exists(&self, path: &str) -> bool {
         self.user
             .borrow()
             .filesystem
             .as_ref()
             .unwrap()
             .borrow()
-            .exists(path)
+            .directory_exists(path)
+    }
+
+    pub fn file_exists(&self, path: &str) -> bool {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .file_exists(path)
     }
 
     pub fn create_directory(&self, path: &str) -> Option<String> {
@@ -215,5 +225,15 @@ impl<'a> CommandContext<'a> {
         self.data_connection_created.replace(true);
 
         true
+    }
+
+    pub fn delete_file(&self, file: &str) -> bool {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .delete_file(file)
     }
 }

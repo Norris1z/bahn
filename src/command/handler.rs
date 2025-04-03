@@ -19,6 +19,7 @@ mod retr;
 mod port;
 mod noop;
 mod syst;
+mod dele;
 
 pub use crate::command::handler::cdup::*;
 pub use crate::command::handler::cwd::*;
@@ -38,6 +39,7 @@ pub use crate::command::handler::retr::*;
 pub use crate::command::handler::port::*;
 pub use crate::command::handler::noop::*;
 pub use crate::command::handler::syst::*;
+pub use crate::command::handler::dele::*;
 
 pub trait CommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection;

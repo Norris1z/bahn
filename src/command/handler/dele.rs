@@ -5,39 +5,36 @@ use crate::response::codes::ResponseCode;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 
-pub struct RmdCommandHandler<'a> {
-    path: &'a CommandArgument<'a>,
+pub struct DeleCommandHandler<'a> {
+    file: &'a CommandArgument<'a>,
 }
 
-impl<'a> RmdCommandHandler<'a> {
-    pub fn new(path: &'a CommandArgument<'a>) -> Self {
-        Self { path }
+impl<'a> DeleCommandHandler<'a> {
+    pub fn new(file: &'a CommandArgument<'a>) -> Self {
+        Self { file }
     }
 }
-
-impl<'a> CommandHandler for RmdCommandHandler<'a> {
+impl<'a> CommandHandler for DeleCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
-        let path = self.path.as_deref().unwrap();
-
-        if !context.directory_exists(path) {
+        if !context.file_exists(self.file.as_ref().unwrap()) {
             return vec![Response::new(
                 ResponseCode::RequestedActionNotTaken,
-                ResponseMessage::Custom("Directory does not exist"),
+                ResponseMessage::Custom("File does not exist"),
                 ResponseType::Complete,
             )];
         }
 
-        if !context.delete_directory(path) {
+        if !context.delete_file(self.file.as_ref().unwrap()) {
             return vec![Response::new(
                 ResponseCode::RequestedActionNotTaken,
-                ResponseMessage::Custom("Failed to delete directory"),
+                ResponseMessage::Custom("Failed to delete file"),
                 ResponseType::Complete,
             )];
         }
 
         vec![Response::new(
             ResponseCode::FileActionOkay,
-            ResponseMessage::Custom("Directory deleted"),
+            ResponseMessage::Custom("File deleted successfully"),
             ResponseType::Complete,
         )]
     }
