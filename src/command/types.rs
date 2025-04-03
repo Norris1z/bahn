@@ -1,4 +1,9 @@
-use crate::command::handler::{CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler, RetrCommandHandler, RmdCommandHandler, StorCommandHandler, TypeCommandHandler, UserCommandHandler};
+use crate::command::handler::{
+    CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler,
+    MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler,
+    PwdCommandHandler, QuitCommandHandler, RetrCommandHandler, RmdCommandHandler,
+    StorCommandHandler, TypeCommandHandler, UserCommandHandler,
+};
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -88,7 +93,7 @@ impl<'a> CommandType<'a> {
 
     pub fn requires_authentication(&self) -> bool {
         match self {
-            CommandType::Help | CommandType::Quit | CommandType::User(_) | CommandType::Pass(_) | CommandType::Port(_) => {
+            CommandType::Help | CommandType::Quit | CommandType::User(_) | CommandType::Pass(_) => {
                 false
             }
             _ => true,
