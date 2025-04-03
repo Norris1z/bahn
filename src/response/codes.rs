@@ -17,4 +17,5 @@ pub enum ResponseCode {
     StartingDataTransfer = 150,
     ClosingDataConnection = 226,
     ConnectionClosedTransferAborted = 426,
+    SystemType = 215,
 }

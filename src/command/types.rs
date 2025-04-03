@@ -1,9 +1,4 @@
-use crate::command::handler::{
-    CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler,
-    MkdCommandHandler, NlstCommandHandler, NoopCommandHandler, PassCommandHandler, PasvHandler,
-    PortCommandHandler, PwdCommandHandler, QuitCommandHandler, RetrCommandHandler,
-    RmdCommandHandler, StorCommandHandler, TypeCommandHandler, UserCommandHandler,
-};
+use crate::command::handler::{CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler, NoopCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler, RetrCommandHandler, RmdCommandHandler, StorCommandHandler, SystCommandHandler, TypeCommandHandler, UserCommandHandler};
 use std::borrow::Cow;
 
 pub type CommandArgument<'a> = Option<Cow<'a, str>>;
@@ -26,6 +21,7 @@ pub enum CommandType<'a> {
     Retr(CommandArgument<'a>),
     Port(CommandArgument<'a>),
     Noop,
+    Syst,
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -74,6 +70,7 @@ impl<'a> CommandType<'a> {
                 command_iterator.next().map(Cow::Borrowed),
             )),
             _ if command.eq_ignore_ascii_case("noop") => Some(CommandType::Noop),
+            _ if command.eq_ignore_ascii_case("syst") => Some(CommandType::Syst),
             _ => None,
         }
     }
@@ -99,7 +96,8 @@ impl<'a> CommandType<'a> {
             | CommandType::Quit
             | CommandType::User(_)
             | CommandType::Pass(_)
-            | CommandType::Noop => false,
+            | CommandType::Noop
+            | CommandType::Syst => false,
             _ => true,
         }
     }
@@ -133,6 +131,7 @@ impl<'a> CommandType<'a> {
             CommandType::Retr(file) => Box::new(RetrCommandHandler::new(file)),
             CommandType::Port(address) => Box::new(PortCommandHandler::new(address)),
             CommandType::Noop => Box::new(NoopCommandHandler {}),
+            CommandType::Syst => Box::new(SystCommandHandler {}),
         }
     }
 }
