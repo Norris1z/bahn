@@ -1,8 +1,8 @@
 use crate::command::handler::{
     CdupCommandHandler, CommandHandler, CwdCommandHandler, HelpCommandHandler, ListCommandHandler,
-    MkdCommandHandler, NlstCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler,
-    PwdCommandHandler, QuitCommandHandler, RetrCommandHandler, RmdCommandHandler,
-    StorCommandHandler, TypeCommandHandler, UserCommandHandler,
+    MkdCommandHandler, NlstCommandHandler, NoopCommandHandler, PassCommandHandler, PasvHandler,
+    PortCommandHandler, PwdCommandHandler, QuitCommandHandler, RetrCommandHandler,
+    RmdCommandHandler, StorCommandHandler, TypeCommandHandler, UserCommandHandler,
 };
 use std::borrow::Cow;
 
@@ -25,6 +25,7 @@ pub enum CommandType<'a> {
     Stor(CommandArgument<'a>),
     Retr(CommandArgument<'a>),
     Port(CommandArgument<'a>),
+    Noop,
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -72,6 +73,7 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("port") => Some(CommandType::Port(
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("noop") => Some(CommandType::Noop),
             _ => None,
         }
     }
@@ -93,9 +95,11 @@ impl<'a> CommandType<'a> {
 
     pub fn requires_authentication(&self) -> bool {
         match self {
-            CommandType::Help | CommandType::Quit | CommandType::User(_) | CommandType::Pass(_) => {
-                false
-            }
+            CommandType::Help
+            | CommandType::Quit
+            | CommandType::User(_)
+            | CommandType::Pass(_)
+            | CommandType::Noop => false,
             _ => true,
         }
     }
@@ -128,6 +132,7 @@ impl<'a> CommandType<'a> {
             CommandType::Stor(file) => Box::new(StorCommandHandler::new(file)),
             CommandType::Retr(file) => Box::new(RetrCommandHandler::new(file)),
             CommandType::Port(address) => Box::new(PortCommandHandler::new(address)),
+            CommandType::Noop => Box::new(NoopCommandHandler {}),
         }
     }
 }
