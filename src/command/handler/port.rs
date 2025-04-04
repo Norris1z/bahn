@@ -17,6 +17,14 @@ impl<'a> PortCommandHandler<'a> {
 
 impl<'a> CommandHandler for PortCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
+        if context.has_data_connection() {
+            return vec![Response::new(
+                ResponseCode::BadSequence,
+                ResponseMessage::Custom("Connection already open"),
+                ResponseType::Complete,
+            )];
+        }
+
         let address = context.construct_socket_addr(self.address.as_ref().unwrap());
 
         if address.is_none() {
