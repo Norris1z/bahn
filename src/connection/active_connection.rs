@@ -11,7 +11,11 @@ impl ActiveDataConnection {
     pub fn new(address: SocketAddr) -> Self {
         if let Ok(socket) = Socket::new(Domain::IPV4, Type::STREAM, None) {
             let default_address = Self::get_default_address();
-            if socket.bind(&default_address.into()).is_ok()
+
+            //https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ
+            if socket.set_reuse_address(true).is_ok()
+                && socket.set_reuse_port(true).is_ok()
+                && socket.bind(&default_address.into()).is_ok()
                 && socket.connect(&address.into()).is_ok()
             {
                 return Self {
