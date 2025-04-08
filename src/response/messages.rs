@@ -15,6 +15,7 @@ pub enum ResponseMessage {
     CantOpenDataConnection,
     SendingDataToDataConnection,
     NoopOkay,
+    ServiceReadyForNewUser
 }
 
 impl ResponseMessage {
@@ -40,6 +41,7 @@ impl ResponseMessage {
                 Cow::Borrowed("Sending data to the data connection")
             }
             ResponseMessage::NoopOkay => Cow::Borrowed("Noop ok"),
+            ResponseMessage::ServiceReadyForNewUser => Cow::Borrowed("Service ready for new user"),
         }
     }
 }

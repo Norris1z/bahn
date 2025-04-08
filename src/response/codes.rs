@@ -18,4 +18,5 @@ pub enum ResponseCode {
     ClosingDataConnection = 226,
     ConnectionClosedTransferAborted = 426,
     SystemType = 215,
+    ServiceReadyForNewUser = 220
 }

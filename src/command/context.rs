@@ -236,4 +236,11 @@ impl<'a> CommandContext<'a> {
             .borrow()
             .delete_file(file)
     }
+
+    pub fn reinitialize_user_state(&self) {
+        let mut user = self.user.borrow_mut();
+        *user = User::new();
+
+        self.data_connection_created.replace(false);
+    }
 }
