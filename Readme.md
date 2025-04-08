@@ -8,15 +8,53 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [x] Authentication support
 - [x] Initial implementation of RFC 959 commands
 - [x] Create types for Data Transfer using the data connection, for now Response::CustomString
-- [ ] Close existing PASV connection if client sends multiple PASSV to prevent Port DDOS
+- [x] Close existing PASV connection if client sends multiple PASSV to prevent Port DDOS
+- [x] File transfers (upload/download)
+- [x] Have another receiver in the session to signal data sent
 - [ ] Ensure user cant have a PORT and PASV command at the same time
 - [ ] Use BufReader instead of calling read on the TCP stream (https://doc.rust-lang.org/std/io/struct.BufReader.html)
 - [ ] Implement transmission modes according to RFC (Block, Compressed etc)
 - [ ] Add debug statements for data connections (generally improve logging)
-- [ ] File transfers (upload/download)
-- [ ] Have another receiver in the session to signal data sent
 - [ ] Use timeouts for the connections
 - [ ] Add more test cases
+
+## FTP Commands According to RFC959
+
+| Command | Arguments | Implemented |
+|---------|-----------|-------------|
+| USER    | `<username>` | [x]         |
+| PASS    | `<password>` | [x]         |
+| ACCT    | `<account-information>` | [ ]         |
+| CWD     | `<pathname>` | [x]         |
+| CDUP    | *(none)* | [x]         |
+| SMNT    | `<pathname>` | [ ]         |
+| QUIT    | *(none)* | [x]         |
+| REIN    | *(none)* | [x]         |
+| PORT    | `<host-port>` | [x]         |
+| PASV    | *(none)* | [x]         |
+| TYPE    | `<type-code>` | [x]         |
+| STRU    | `<structure-code>` | [ ]         |
+| MODE    | `<mode-code>` | [ ]         |
+| RETR    | `<pathname>` | [x]         |
+| STOR    | `<pathname>` | [x]         |
+| STOU    | *(none)* | [ ]         |
+| APPE    | `<pathname>` | [ ]         |
+| ALLO    | `<decimal-integer> [ R <decimal-integer> ]` | [ ]         |
+| REST    | `<marker>` | [ ]         |
+| RNFR    | `<pathname>` | [ ]         |
+| RNTO    | `<pathname>` | [ ]         |
+| ABOR    | *(none)* | [ ]         |
+| DELE    | `<pathname>` | [x]         |
+| RMD     | `<pathname>` | [x]         |
+| MKD     | `<pathname>` | [x]         |
+| PWD     | *(none)* | [x]         |
+| LIST    | `[<pathname>]` | [x]         |
+| NLST    | `[<pathname>]` | [x]         |
+| SITE    | `<string>` | [ ]         |
+| SYST    | *(none)* | [x]         |
+| STAT    | `[<pathname>]` | [ ]         |
+| HELP    | `[<string>]` | [x]         |
+| NOOP    | *(none)* | [x]         |
 
 
 ## Getting Started
