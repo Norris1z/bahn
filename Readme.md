@@ -12,6 +12,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [x] File transfers (upload/download)
 - [x] Have another receiver in the session to signal data sent
 - [x] Ensure user cant have a PORT and PASV command at the same time
+- [ ] Refactor the Response into maybe an Enum or something else since the data connection usually doesn't care about the code and message
 - [ ] Use BufReader instead of calling read on the TCP stream (https://doc.rust-lang.org/std/io/struct.BufReader.html)
 - [ ] Implement transmission modes according to RFC (Block, Compressed etc)
 - [ ] Add debug statements for data connections (generally improve logging)
