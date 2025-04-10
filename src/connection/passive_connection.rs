@@ -1,7 +1,7 @@
 use crate::connection::DataConnection;
 use crate::connection::communication_channel::CommunicationChannel;
 use crate::connection::data_transfer_status::DataTransferStatus;
-use crate::response::ResponseCollection;
+use crate::response::Response;
 use std::net::{Shutdown, SocketAddr, TcpListener};
 
 pub struct PassiveDataConnection {
@@ -15,7 +15,7 @@ impl DataConnection for PassiveDataConnection {
 
     fn handle_data_exchange(
         &self,
-        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
+        communication_channel: CommunicationChannel<DataTransferStatus, Response>,
     ) {
         for stream in self.connection.as_ref().unwrap().incoming() {
             match stream {

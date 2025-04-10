@@ -14,7 +14,8 @@ impl CommandHandler for HelpCommandHandler {
                 ResponseMessage::Custom(
                     r#"The following commands are supported.
  USER HELP PASS QUIT PWD MKD CWD CDUP LIST NLST
- PASV PORT RMD RETR STOR TYPE NOOP SYST DELE REIN"#,
+ PASV PORT RMD RETR STOR TYPE NOOP SYST DELE REIN
+ STOU"#,
                 ),
                 ResponseType::Partial,
             ),

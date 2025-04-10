@@ -10,6 +10,7 @@ use std::fmt::{Display, Formatter};
 
 pub type ResponseCollection = Vec<Response>;
 
+#[derive(PartialEq)]
 pub enum ResponseType {
     Partial,
     Complete,
@@ -17,20 +18,8 @@ pub enum ResponseType {
     DataTransfer,
 }
 
-impl PartialEq for ResponseType {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (ResponseType::Partial, ResponseType::Partial) => true,
-            (ResponseType::Complete, ResponseType::Complete) => true,
-            (ResponseType::Terminate, ResponseType::Terminate) => true,
-            (ResponseType::DataTransfer, ResponseType::DataTransfer) => true,
-            _ => false,
-        }
-    }
-}
-
 pub struct Response {
-    code: ResponseCode,
+    pub code: ResponseCode,
     pub message: ResponseMessage,
     response_type: ResponseType,
     pub data: Option<ResponseData>,

@@ -1,6 +1,7 @@
 use crate::constants::{CARRIAGE_RETURN_HEX, LINE_FEED_HEX, TELNET_IAC_HEX, TELNET_IP_HEX};
 
 //not so sure about this, but this is mainly for telnet connections
+#[derive(PartialEq)]
 pub enum ExitMode {
     ControlMode,
     TelnetIACIPMode,
@@ -10,17 +11,6 @@ pub enum ControlFlowStatement {
     Continue(Option<ExitMode>),
     Break,
     TerminateAndBreak,
-}
-
-impl PartialEq for ExitMode {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::ControlMode, Self::ControlMode) => true,
-            (Self::TelnetIACIPMode, Self::TelnetIACIPMode) => true,
-            (Self::None, Self::None) => true,
-            _ => false,
-        }
-    }
 }
 
 impl ExitMode {

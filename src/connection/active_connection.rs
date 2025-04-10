@@ -1,5 +1,5 @@
 use crate::connection::{CommunicationChannel, DataConnection, DataTransferStatus};
-use crate::response::ResponseCollection;
+use crate::response::Response;
 use socket2::{Domain, Socket, Type};
 use std::net::{Shutdown, SocketAddr, TcpStream};
 
@@ -42,7 +42,7 @@ impl DataConnection for ActiveDataConnection {
 
     fn handle_data_exchange(
         &self,
-        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
+        communication_channel: CommunicationChannel<DataTransferStatus, Response>,
     ) {
         if let Ok(mut stream) = self.stream.as_ref().unwrap().try_clone() {
             self.process_data_from_communication_channel(&mut stream, &communication_channel);

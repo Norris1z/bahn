@@ -2,27 +2,25 @@ use crate::connection::PassiveDataConnection;
 use crate::connection::{ActiveDataConnection, DataTransferStatus};
 use crate::connection::{CommunicationChannel, DataConnection};
 use crate::filesystem::RepresentationType;
-use crate::response::ResponseCollection;
+use crate::response::Response;
 use crate::session::user::User;
 use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::mpsc;
+use uuid::Uuid;
 
 pub struct CommandContext<'a> {
     user: &'a RefCell<User>,
     data_connection_created: &'a Cell<bool>,
-    communication_channel:
-        &'a RefCell<CommunicationChannel<ResponseCollection, DataTransferStatus>>,
+    communication_channel: &'a RefCell<CommunicationChannel<Response, DataTransferStatus>>,
 }
 
 impl<'a> CommandContext<'a> {
     pub fn new(
         user: &'a RefCell<User>,
         data_connection_created: &'a Cell<bool>,
-        communication_channel: &'a RefCell<
-            CommunicationChannel<ResponseCollection, DataTransferStatus>,
-        >,
+        communication_channel: &'a RefCell<CommunicationChannel<Response, DataTransferStatus>>,
     ) -> Self {
         Self {
             user,
@@ -201,7 +199,7 @@ impl<'a> CommandContext<'a> {
 
     fn create_data_communication_channels(
         &self,
-    ) -> CommunicationChannel<DataTransferStatus, ResponseCollection> {
+    ) -> CommunicationChannel<DataTransferStatus, Response> {
         let (session_sender, data_receiver) = mpsc::channel();
         let (data_sender, session_receiver) = mpsc::channel();
 
@@ -242,5 +240,9 @@ impl<'a> CommandContext<'a> {
         *user = User::new();
 
         self.data_connection_created.replace(false);
+    }
+
+    pub fn random_filename(&self) -> String {
+        Uuid::new_v4().to_string().replace('-', "")
     }
 }

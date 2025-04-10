@@ -3,7 +3,7 @@ use crate::command::handler::{
     ListCommandHandler, MkdCommandHandler, NlstCommandHandler, NoopCommandHandler,
     PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler,
     ReinCommandHandler, RetrCommandHandler, RmdCommandHandler, StorCommandHandler,
-    SystCommandHandler, TypeCommandHandler, UserCommandHandler,
+    StouCommandHandler, SystCommandHandler, TypeCommandHandler, UserCommandHandler,
 };
 use std::borrow::Cow;
 
@@ -30,6 +30,7 @@ pub enum CommandType<'a> {
     Syst,
     Dele(CommandArgument<'a>),
     Rein,
+    Stou,
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -83,6 +84,7 @@ impl<'a> CommandType<'a> {
                 command_iterator.next().map(Cow::Borrowed),
             )),
             _ if command.eq_ignore_ascii_case("rein") => Some(CommandType::Rein),
+            _ if command.eq_ignore_ascii_case("stou") => Some(CommandType::Stou),
             _ => None,
         }
     }
@@ -120,6 +122,7 @@ impl<'a> CommandType<'a> {
             CommandType::Nlst(_)
             | CommandType::List(_)
             | CommandType::Stor(_)
+            | CommandType::Stou
             | CommandType::Retr(_) => true,
             _ => false,
         }
@@ -147,6 +150,7 @@ impl<'a> CommandType<'a> {
             CommandType::Syst => Box::new(SystCommandHandler {}),
             CommandType::Dele(file) => Box::new(DeleCommandHandler::new(file)),
             CommandType::Rein => Box::new(ReinCommandHandler {}),
+            CommandType::Stou => Box::new(StouCommandHandler {}),
         }
     }
 }

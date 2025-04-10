@@ -1,45 +1,31 @@
 use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
-use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
+use crate::response::file::FileResponse;
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
-use std::borrow::Cow;
 
-pub struct NlstCommandHandler<'a> {
-    path: &'a CommandArgument<'a>,
-}
+pub struct StouCommandHandler {}
 
-impl<'a> NlstCommandHandler<'a> {
-    pub fn new(path: &'a CommandArgument<'a>) -> Self {
-        Self { path }
-    }
-}
-
-impl<'a> CommandHandler for NlstCommandHandler<'a> {
+impl CommandHandler for StouCommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
-        if !context.has_data_connection() {
-            return vec![];
-        }
-
-        let content = context.list_directory_content_names(
-            self.path.as_ref().unwrap_or_else(|| &Cow::Borrowed(".")),
-        );
+        let file = context.random_filename();
+        let path = context.get_relative_path(file.as_str());
 
         vec![
             Response::new(
                 ResponseCode::StartingDataTransfer,
-                ResponseMessage::StartingDataTransfer,
+                ResponseMessage::CustomString(format!("FILE: {}", file)),
                 ResponseType::Complete,
             ),
             Response::with_data(
                 ResponseCode::Success,
                 ResponseMessage::SendingDataToDataConnection,
-                ResponseType::Complete,
+                ResponseType::DataTransfer,
                 ResponseData::new(
-                    DataTransferType::Outgoing,
-                    ResponseDataContentType::FileInfoList(content),
+                    DataTransferType::Incoming,
+                    ResponseDataContentType::File(FileResponse::new(path)),
                 ),
             ),
         ]

@@ -11,7 +11,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [x] Close existing PASV connection if client sends multiple PASSV to prevent Port DDOS
 - [x] File transfers (upload/download)
 - [x] Have another receiver in the session to signal data sent
-- [ ] Ensure user cant have a PORT and PASV command at the same time
+- [x] Ensure user cant have a PORT and PASV command at the same time
 - [ ] Use BufReader instead of calling read on the TCP stream (https://doc.rust-lang.org/std/io/struct.BufReader.html)
 - [ ] Implement transmission modes according to RFC (Block, Compressed etc)
 - [ ] Add debug statements for data connections (generally improve logging)
@@ -37,7 +37,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 | MODE    | `<mode-code>` | [ ]         |
 | RETR    | `<pathname>` | [x]         |
 | STOR    | `<pathname>` | [x]         |
-| STOU    | *(none)* | [ ]         |
+| STOU    | *(none)* | [x]         |
 | APPE    | `<pathname>` | [ ]         |
 | ALLO    | `<decimal-integer> [ R <decimal-integer> ]` | [ ]         |
 | REST    | `<marker>` | [ ]         |

@@ -1,7 +1,7 @@
 use crate::connection::{CommunicationChannel, DataTransferStatus};
 use crate::constants::DATA_CONNECTION_READ_BUFFER;
 use crate::filesystem::VirtualFilesystem;
-use crate::response::ResponseCollection;
+use crate::response::Response;
 use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
 use std::io::{Read, Write};
 use std::net::TcpStream;
@@ -11,7 +11,7 @@ pub trait DataConnection {
 
     fn handle_data_exchange(
         &self,
-        communication_channel: CommunicationChannel<DataTransferStatus, ResponseCollection>,
+        communication_channel: CommunicationChannel<DataTransferStatus, Response>,
     );
 
     fn send_outgoing_data(
@@ -98,27 +98,24 @@ pub trait DataConnection {
     fn process_data_from_communication_channel(
         &self,
         stream: &mut TcpStream,
-        communication_channel: &CommunicationChannel<DataTransferStatus, ResponseCollection>,
+        communication_channel: &CommunicationChannel<DataTransferStatus, Response>,
     ) {
         let mut transfer_status = DataTransferStatus::Success;
         let message = communication_channel.receiver.as_ref().unwrap().recv();
         if message.is_ok() {
             let response = message.unwrap();
-            'response_loop: for response in response {
-                if response.data.is_some() {
-                    let data = response.data.unwrap();
+            if response.data.is_some() {
+                let data = response.data.unwrap();
 
-                    match data.transfer_type {
-                        DataTransferType::Outgoing => {
-                            if let Some(status) = self.send_outgoing_data(stream, &data) {
-                                transfer_status = status;
-                                break 'response_loop;
-                            }
+                match data.transfer_type {
+                    DataTransferType::Outgoing => {
+                        if let Some(status) = self.send_outgoing_data(stream, &data) {
+                            transfer_status = status;
                         }
-                        DataTransferType::Incoming => {
-                            if let Some(status) = self.receive_incoming_data(stream, &data) {
-                                transfer_status = status;
-                            }
+                    }
+                    DataTransferType::Incoming => {
+                        if let Some(status) = self.receive_incoming_data(stream, &data) {
+                            transfer_status = status;
                         }
                     }
                 }

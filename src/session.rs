@@ -16,7 +16,7 @@ pub struct Session {
     user: RefCell<User>,
     socket_writer: OwnedWriteHalf,
     data_connection_created: Cell<bool>,
-    communication_channel: RefCell<CommunicationChannel<ResponseCollection, DataTransferStatus>>,
+    communication_channel: RefCell<CommunicationChannel<Response, DataTransferStatus>>,
 }
 
 impl Session {
@@ -46,10 +46,10 @@ impl Session {
             &self.communication_channel,
         );
 
-        let response = command.handle(context);
+        let mut response = command.handle(context);
 
         if is_data_command {
-            self.send_data_response(response)
+            self.send_data_response(&mut response)
         } else {
             self.send_response(response)
         }
@@ -67,7 +67,7 @@ impl Session {
         !last_response.is_terminate()
     }
 
-    fn send_data_response(&mut self, responses: ResponseCollection) -> bool {
+    fn send_data_response(&mut self, responses: &mut ResponseCollection) -> bool {
         if !self.data_connection_created.get() {
             return self.send_response(vec![Response::new(
                 ResponseCode::CantOpenDataConnection,
@@ -76,11 +76,18 @@ impl Session {
             )]);
         }
 
-        self.send_response(vec![Response::new(
-            ResponseCode::StartingDataTransfer,
-            ResponseMessage::Custom("Starting data transfer"),
-            ResponseType::Complete,
-        )]);
+        if responses.first().unwrap().code != ResponseCode::StartingDataTransfer {
+            return self.send_response(vec![responses.pop().unwrap()]);
+        }
+
+        if responses.len() != 2 {
+            panic!("Data responses must return exactly 2 responses");
+        }
+
+        let data_response = responses.pop().unwrap();
+        let command_response = responses.pop().unwrap();
+
+        self.send_response(vec![command_response]);
 
         let failed_response = vec![Response::new(
             ResponseCode::ConnectionClosedTransferAborted,
@@ -94,7 +101,7 @@ impl Session {
             .sender
             .as_ref()
             .unwrap()
-            .send(responses)
+            .send(data_response)
             .is_err()
         {
             return self.send_response(failed_response);

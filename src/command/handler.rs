@@ -21,6 +21,7 @@ mod noop;
 mod syst;
 mod dele;
 mod rein;
+mod stou;
 
 pub use crate::command::handler::cdup::*;
 pub use crate::command::handler::cwd::*;
@@ -42,6 +43,7 @@ pub use crate::command::handler::noop::*;
 pub use crate::command::handler::syst::*;
 pub use crate::command::handler::dele::*;
 pub use crate::command::handler::rein::*;
+pub use crate::command::handler::stou::*;
 
 pub trait CommandHandler {
     fn handle(&self, context: CommandContext) -> ResponseCollection;

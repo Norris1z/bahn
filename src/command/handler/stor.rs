@@ -23,16 +23,23 @@ impl<'a> CommandHandler for StorCommandHandler<'a> {
             return vec![];
         }
 
-        vec![Response::with_data(
-            ResponseCode::Success,
-            ResponseMessage::SendingDataToDataConnection,
-            ResponseType::DataTransfer,
-            ResponseData::new(
-                DataTransferType::Incoming,
-                ResponseDataContentType::File(FileResponse::new(
-                    context.get_relative_path(self.file.as_ref().unwrap()),
-                )),
+        vec![
+            Response::new(
+                ResponseCode::StartingDataTransfer,
+                ResponseMessage::StartingDataTransfer,
+                ResponseType::Complete,
             ),
-        )]
+            Response::with_data(
+                ResponseCode::Success,
+                ResponseMessage::SendingDataToDataConnection,
+                ResponseType::DataTransfer,
+                ResponseData::new(
+                    DataTransferType::Incoming,
+                    ResponseDataContentType::File(FileResponse::new(
+                        context.get_relative_path(self.file.as_ref().unwrap()),
+                    )),
+                ),
+            ),
+        ]
     }
 }

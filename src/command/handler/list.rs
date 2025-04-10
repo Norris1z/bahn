@@ -27,14 +27,21 @@ impl<'a> CommandHandler for ListCommandHandler<'a> {
             self.path.as_ref().unwrap_or_else(|| &Cow::Borrowed(".")),
         );
 
-        vec![Response::with_data(
-            ResponseCode::Success,
-            ResponseMessage::SendingDataToDataConnection,
-            ResponseType::DataTransfer,
-            ResponseData::new(
-                DataTransferType::Outgoing,
-                ResponseDataContentType::FileInfoList(content),
+        vec![
+            Response::new(
+                ResponseCode::StartingDataTransfer,
+                ResponseMessage::StartingDataTransfer,
+                ResponseType::Complete,
             ),
-        )]
+            Response::with_data(
+                ResponseCode::Success,
+                ResponseMessage::SendingDataToDataConnection,
+                ResponseType::DataTransfer,
+                ResponseData::new(
+                    DataTransferType::Outgoing,
+                    ResponseDataContentType::FileInfoList(content),
+                ),
+            ),
+        ]
     }
 }
