@@ -1,9 +1,10 @@
 use crate::command::handler::{
-    CdupCommandHandler, CommandHandler, CwdCommandHandler, DeleCommandHandler, HelpCommandHandler,
-    ListCommandHandler, MkdCommandHandler, NlstCommandHandler, NoopCommandHandler,
-    PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler, QuitCommandHandler,
-    ReinCommandHandler, RetrCommandHandler, RmdCommandHandler, StorCommandHandler,
-    StouCommandHandler, SystCommandHandler, TypeCommandHandler, UserCommandHandler,
+    AppeCommandHandler, CdupCommandHandler, CommandHandler, CwdCommandHandler, DeleCommandHandler,
+    HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler,
+    NoopCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler,
+    QuitCommandHandler, ReinCommandHandler, RetrCommandHandler, RmdCommandHandler,
+    StorCommandHandler, StouCommandHandler, SystCommandHandler, TypeCommandHandler,
+    UserCommandHandler,
 };
 use std::borrow::Cow;
 
@@ -31,6 +32,7 @@ pub enum CommandType<'a> {
     Dele(CommandArgument<'a>),
     Rein,
     Stou,
+    Appe(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -85,6 +87,9 @@ impl<'a> CommandType<'a> {
             )),
             _ if command.eq_ignore_ascii_case("rein") => Some(CommandType::Rein),
             _ if command.eq_ignore_ascii_case("stou") => Some(CommandType::Stou),
+            _ if command.eq_ignore_ascii_case("appe") => Some(CommandType::Appe(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -100,7 +105,8 @@ impl<'a> CommandType<'a> {
             | CommandType::Stor(argument)
             | CommandType::Retr(argument)
             | CommandType::Port(argument)
-            | CommandType::Dele(argument) => argument.is_none(),
+            | CommandType::Dele(argument)
+            | CommandType::Appe(argument)=> argument.is_none(),
             _ => false,
         }
     }
@@ -123,7 +129,8 @@ impl<'a> CommandType<'a> {
             | CommandType::List(_)
             | CommandType::Stor(_)
             | CommandType::Stou
-            | CommandType::Retr(_) => true,
+            | CommandType::Retr(_)
+            | CommandType::Appe(_)=> true,
             _ => false,
         }
     }
@@ -151,6 +158,7 @@ impl<'a> CommandType<'a> {
             CommandType::Dele(file) => Box::new(DeleCommandHandler::new(file)),
             CommandType::Rein => Box::new(ReinCommandHandler {}),
             CommandType::Stou => Box::new(StouCommandHandler {}),
+            CommandType::Appe(file) => Box::new(AppeCommandHandler::new(file)),
         }
     }
 }

@@ -48,11 +48,19 @@ impl Session {
 
         let mut response = command.handle(context);
 
-        if is_data_command {
-            self.send_data_response(&mut response)
-        } else {
-            self.send_response(response)
+        if (response.len() == 1
+            && match response.first().unwrap().code {
+                ResponseCode::NotLoggedIn | ResponseCode::SyntaxErrorInParametersOrArguments => {
+                    true
+                }
+                _ => false,
+            })
+            || !is_data_command
+        {
+            return self.send_response(response);
         }
+
+        self.send_data_response(&mut response)
     }
 
     fn send_response(&mut self, responses: ResponseCollection) -> bool {

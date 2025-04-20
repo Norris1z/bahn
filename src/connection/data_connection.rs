@@ -3,6 +3,7 @@ use crate::constants::DATA_CONNECTION_READ_BUFFER;
 use crate::filesystem::VirtualFilesystem;
 use crate::response::Response;
 use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
+use crate::response::file::FileMode;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 
@@ -67,7 +68,12 @@ pub trait DataConnection {
         match &data.content {
             ResponseDataContentType::File(file) => {
                 let mut buffer = [0; DATA_CONNECTION_READ_BUFFER];
-                let writable_file = VirtualFilesystem::create_writable_file(&file.filename);
+                let writable_file =
+                    if *file.mode.as_ref().unwrap_or(&FileMode::Create) == FileMode::Append {
+                        VirtualFilesystem::create_appendable_file(&file.filename)
+                    } else {
+                        VirtualFilesystem::create_writable_file(&file.filename)
+                    };
 
                 if writable_file.is_err() {
                     return Some(DataTransferStatus::Failed);

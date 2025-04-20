@@ -253,4 +253,8 @@ impl VirtualFilesystem {
         let file = self.get_relative_path(file);
         fs::remove_file(file).is_ok()
     }
+
+    pub fn create_appendable_file(path: &str) -> std::io::Result<File> {
+        fs::OpenOptions::new().create(true).append(true).open(path)
+    }
 }

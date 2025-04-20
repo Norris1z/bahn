@@ -18,6 +18,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 - [ ] Add debug statements for data connections (generally improve logging)
 - [ ] Use timeouts for the connections
 - [ ] Add more test cases
+- [ ] Cleanup checks for data connection and probably the entire response
 
 ## FTP Commands According to RFC959
 
@@ -39,7 +40,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 | RETR    | `<pathname>` | [x]         |
 | STOR    | `<pathname>` | [x]         |
 | STOU    | *(none)* | [x]         |
-| APPE    | `<pathname>` | [ ]         |
+| APPE    | `<pathname>` | [x]         |
 | ALLO    | `<decimal-integer> [ R <decimal-integer> ]` | [ ]         |
 | REST    | `<marker>` | [ ]         |
 | RNFR    | `<pathname>` | [ ]         |

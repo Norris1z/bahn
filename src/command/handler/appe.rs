@@ -1,22 +1,32 @@
 use crate::command::context::CommandContext;
 use crate::command::handler::CommandHandler;
+use crate::command::types::CommandArgument;
 use crate::response::codes::ResponseCode;
 use crate::response::data::{DataTransferType, ResponseData, ResponseDataContentType};
 use crate::response::file::{FileMode, FileResponse};
 use crate::response::messages::ResponseMessage;
 use crate::response::{Response, ResponseCollection, ResponseType};
 
-pub struct StouCommandHandler {}
+pub struct AppeCommandHandler<'a> {
+    file: &'a CommandArgument<'a>,
+}
 
-impl CommandHandler for StouCommandHandler {
+impl<'a> AppeCommandHandler<'a> {
+    pub fn new(file: &'a CommandArgument<'a>) -> Self {
+        Self { file }
+    }
+}
+
+impl<'a> CommandHandler for AppeCommandHandler<'a> {
     fn handle(&self, context: CommandContext) -> ResponseCollection {
-        let file = context.random_filename();
-        let path = context.get_relative_path(file.as_str());
+        if !context.has_data_connection() {
+            return vec![];
+        }
 
         vec![
             Response::new(
                 ResponseCode::StartingDataTransfer,
-                ResponseMessage::CustomString(format!("FILE: {}", file)),
+                ResponseMessage::StartingDataTransfer,
                 ResponseType::Complete,
             ),
             Response::with_data(
@@ -25,7 +35,10 @@ impl CommandHandler for StouCommandHandler {
                 ResponseType::DataTransfer,
                 ResponseData::new(
                     DataTransferType::Incoming,
-                    ResponseDataContentType::File(FileResponse::with_mode(path, FileMode::Create)),
+                    ResponseDataContentType::File(FileResponse::with_mode(
+                        context.get_relative_path(self.file.as_ref().unwrap()),
+                        FileMode::Append,
+                    )),
                 ),
             ),
         ]
