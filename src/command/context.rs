@@ -245,4 +245,24 @@ impl<'a> CommandContext<'a> {
     pub fn random_filename(&self) -> String {
         Uuid::new_v4().to_string().replace('-', "")
     }
+
+    pub fn is_file(&self, path: &str) -> bool {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .is_file(path)
+    }
+
+    pub fn file_metadata_information(&self, file: &str) -> Option<String> {
+        self.user
+            .borrow()
+            .filesystem
+            .as_ref()
+            .unwrap()
+            .borrow()
+            .file_metadata_information(file)
+    }
 }

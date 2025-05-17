@@ -3,8 +3,8 @@ use crate::command::handler::{
     HelpCommandHandler, ListCommandHandler, MkdCommandHandler, NlstCommandHandler,
     NoopCommandHandler, PassCommandHandler, PasvHandler, PortCommandHandler, PwdCommandHandler,
     QuitCommandHandler, ReinCommandHandler, RetrCommandHandler, RmdCommandHandler,
-    StorCommandHandler, StouCommandHandler, SystCommandHandler, TypeCommandHandler,
-    UserCommandHandler,
+    StatCommandHandler, StorCommandHandler, StouCommandHandler, SystCommandHandler,
+    TypeCommandHandler, UserCommandHandler,
 };
 use std::borrow::Cow;
 
@@ -33,6 +33,7 @@ pub enum CommandType<'a> {
     Rein,
     Stou,
     Appe(CommandArgument<'a>),
+    Stat(CommandArgument<'a>),
 }
 impl<'a> CommandType<'a> {
     pub fn from(string: &'a str) -> Option<Self> {
@@ -90,6 +91,9 @@ impl<'a> CommandType<'a> {
             _ if command.eq_ignore_ascii_case("appe") => Some(CommandType::Appe(
                 command_iterator.next().map(Cow::Borrowed),
             )),
+            _ if command.eq_ignore_ascii_case("stat") => Some(CommandType::Stat(
+                command_iterator.next().map(Cow::Borrowed),
+            )),
             _ => None,
         }
     }
@@ -106,7 +110,7 @@ impl<'a> CommandType<'a> {
             | CommandType::Retr(argument)
             | CommandType::Port(argument)
             | CommandType::Dele(argument)
-            | CommandType::Appe(argument)=> argument.is_none(),
+            | CommandType::Appe(argument) => argument.is_none(),
             _ => false,
         }
     }
@@ -130,7 +134,7 @@ impl<'a> CommandType<'a> {
             | CommandType::Stor(_)
             | CommandType::Stou
             | CommandType::Retr(_)
-            | CommandType::Appe(_)=> true,
+            | CommandType::Appe(_) => true,
             _ => false,
         }
     }
@@ -159,6 +163,7 @@ impl<'a> CommandType<'a> {
             CommandType::Rein => Box::new(ReinCommandHandler {}),
             CommandType::Stou => Box::new(StouCommandHandler {}),
             CommandType::Appe(file) => Box::new(AppeCommandHandler::new(file)),
+            CommandType::Stat(path) => Box::new(StatCommandHandler::new(path)),
         }
     }
 }

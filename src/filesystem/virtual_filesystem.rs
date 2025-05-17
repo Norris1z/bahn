@@ -257,4 +257,19 @@ impl VirtualFilesystem {
     pub fn create_appendable_file(path: &str) -> std::io::Result<File> {
         fs::OpenOptions::new().create(true).append(true).open(path)
     }
+
+    pub fn is_file(&self, path: &str) -> bool {
+        let path = self.get_relative_path(path);
+        path.is_file()
+    }
+
+    pub fn file_metadata_information(&self, file: &str) -> Option<String> {
+        let path = self.get_relative_path(file.as_ref());
+
+        if let Ok(metadata) = fs::metadata(path) {
+            return Some(self.parse_file_metadata(file, metadata));
+        }
+
+        None
+    }
 }

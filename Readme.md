@@ -54,7 +54,7 @@ An FTP server project built in Rust, designed to follow RFC 959. This project se
 | NLST    | `[<pathname>]` | [x]         |
 | SITE    | `<string>` | [ ]         |
 | SYST    | *(none)* | [x]         |
-| STAT    | `[<pathname>]` | [ ]         |
+| STAT    | `[<pathname>]` | [x]         |
 | HELP    | `[<string>]` | [x]         |
 | NOOP    | *(none)* | [x]         |
 

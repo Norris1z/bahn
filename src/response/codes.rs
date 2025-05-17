@@ -18,5 +18,9 @@ pub enum ResponseCode {
     ClosingDataConnection = 226,
     ConnectionClosedTransferAborted = 426,
     SystemType = 215,
-    ServiceReadyForNewUser = 220
+    ServiceReadyForNewUser = 220,
+    DirectoryStatus = 212,
+    FileStatus = 213,
+    RequestedFileActionNotTaken = 450,
+    SystemStatus = 211,
 }
